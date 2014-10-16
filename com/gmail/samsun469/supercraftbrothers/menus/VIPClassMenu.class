@@ -1,0 +1,64 @@
+package com.gmail.samsun469.supercraftbrothers.menus;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SCBRank;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import java.util.List;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+public class VIPClassMenu
+{
+  private VIPClassMenuIM vipclass;
+  private Player p;
+  private SCBPlayer bro;
+  
+  public VIPClassMenu(SuperCraftBrothers scb, Player p)
+  {
+    this.p = p;
+    this.vipclass = new VIPClassMenuIM("§2VIP Characters", 27, scb);
+  }
+  
+  public String[] classes = { "Mollstam", "SethBling", "EnderDragon", "ChargedCreeper" };
+  public ItemStack[] items = {
+    new ItemStack(Material.MAP), 
+    new ItemStack(Material.REDSTONE), 
+    new ItemStack(Material.DRAGON_EGG), 
+    new ItemStack(Material.SKULL_ITEM, 1, 4) };
+  public String[] descs = new String[this.classes.length];
+  
+  public void openMenu()
+  {
+    this.bro = PlayerManager.getCraftBrother(this.p);
+    setupShop(this.p);
+    for (int i = 0; i < this.classes.length; i++) {
+      this.vipclass.setOption(i, this.items[i], this.classes[i], new String[] { this.descs[i] });
+    }
+    this.vipclass.open(this.p);
+  }
+  
+  public void setupShop(Player p)
+  {
+    for (int i = 0; i < this.classes.length; i++) {
+      if (RankManager.getPlayerRank(p.getName()).getClasses().contains(this.classes[i])) {
+        this.descs[i] = "§aYou may use this class!";
+      } else {
+        this.descs[i] = "§cPlease purchase VIP or PRO to use this class";
+      }
+    }
+  }
+  
+  public void onOptionClick(String c)
+  {
+    if ((RankManager.getPlayerRank(this.p.getName()).getClasses().contains(c)) || (this.p.hasPermission("scb.class." + c.toLowerCase()))) {
+      this.bro.setCurrentClass(c);
+    } else {
+      this.bro.getPlayer().sendMessage(ChatColor.RED + "Please purchase VIP or PRO to use this class");
+    }
+    VIPClassMenuIM.removeFromList(this.p);
+  }
+}
