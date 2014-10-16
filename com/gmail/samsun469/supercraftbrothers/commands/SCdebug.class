@@ -1,0 +1,116 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SCBRank;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import com.gmail.samsun469.supercraftbrothers.managers.StatsManager;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import org.bukkit.Server;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
+
+public class SCdebug
+  extends ISubCommand
+{
+  public SCdebug()
+  {
+    super("debug", "", 0, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    if (args.length == 0)
+    {
+      cs.sendMessage("[§aSCB§r] This server is running SCB version " + SuperCraftBrothers.getInstance().getDescription().getVersion());
+      cs.sendMessage("[§aSCB§r] Implementing Bukkit API " + SuperCraftBrothers.getInstance().getServer().getVersion().toString());
+      cs.sendMessage("[§aSCB§r] There are currently " + ArenaManager.getAllGames().size() + " games");
+      cs.sendMessage("[§aSCB§r] Type /scb debug games for more info on games");
+      cs.sendMessage("[§aSCB§r] Type /scb debug player <name> for more info on a player");
+    }
+    else if (args[0].equalsIgnoreCase("games"))
+    {
+      List<String> gamenames = new ArrayList();
+      for (SCBGame game : ArenaManager.getAllGames()) {
+        gamenames.add(game.getName());
+      }
+      cs.sendMessage("[§aSCB§r] There are currently " + ArenaManager.getAllGames().size() + " games.");
+      cs.sendMessage("[§aSCB§r] The games are: " + gamenames.toString().replace('[', ' ').replace(']', ' '));
+      cs.sendMessage("[§aSCB§r] Type /scb debug game <GameName> for more info on that arena");
+    }
+    else if (args[0].equalsIgnoreCase("game"))
+    {
+      if (args[1] == null)
+      {
+        cs.sendMessage("[§aSCB§r] You did not specify a game!");
+      }
+      else if (ArenaManager.getGame(args[1]) == null)
+      {
+        cs.sendMessage("[§aSCB§r] Game could not be found!");
+      }
+      else
+      {
+        List<String> igs = new ArrayList();
+        List<String> ig = new ArrayList();
+        SCBGame game = ArenaManager.getGame(args[1]);
+        for (SCBPlayer bro : game.getHashMap(0).values()) {
+          if (bro.getPlayer() != null) {
+            igs.add(bro.getPlayer().getName());
+          }
+        }
+        for (SCBPlayer bro : game.getHashMap(1).values()) {
+          if (bro.getPlayer() != null) {
+            ig.add(bro.getPlayer().getName());
+          }
+        }
+        String status = null;
+        if (game.isInLobby()) {
+          status = "In Lobby";
+        }
+        if (game.isInGame()) {
+          status = "In Game";
+        }
+        cs.sendMessage("[§aSCB§r] Game: " + game.getName());
+        cs.sendMessage("[§aSCB§r] Status: " + status);
+        cs.sendMessage("[§aSCB§r] Players in the game (Includes spectation): " + game.getHashMap(0).size());
+        cs.sendMessage("[§aSCB§r] Players in the game: " + game.getHashMap(1).size());
+        cs.sendMessage("[§aSCB§r] Players in the game (Includes spectation): " + igs.toString().replace('[', ' ').replace(']', ' '));
+        cs.sendMessage("[§aSCB§r] Players in the game: " + ig.toString().replace('[', ' ').replace(']', ' '));
+      }
+    }
+    else if (args[0].equalsIgnoreCase("player"))
+    {
+      if (args[1] == null)
+      {
+        cs.sendMessage("[§aSCB§r] You did not specify a player!");
+      }
+      else
+      {
+        cs.sendMessage("[§aSCB§r] Player: " + args[1]);
+        if (RankManager.getPlayerRank(args[1]).getName() != null) {
+          cs.sendMessage("[§aSCB§r] Rank: " + RankManager.getPlayerRank(args[1]).getName());
+        } else {
+          cs.sendMessage("[§aSCB§r] Rank: INVALID");
+        }
+        cs.sendMessage("[§aSCB§r] Is in game: " + Boolean.toString(PlayerManager.getCraftBrother(args[1]) != null));
+        if (PlayerManager.getCraftBrother(args[1]) != null) {
+          cs.sendMessage("[§aSCB§r] Game: " + PlayerManager.getCraftBrother(args[1]).getCurrentGame().getName());
+        }
+        cs.sendMessage("[§aSCB§r] Gems: " + StatsManager.getPlayerGems(args[1]));
+        List<String> characters = new ArrayList();
+        List<String> hats = new ArrayList();
+        characters = StatsManager.getAllClasses(args[1]);
+        hats = StatsManager.getAllHats(args[1]);
+        cs.sendMessage("[§aSCB§r]" + characters.toString().replace('[', ' ').replace(']', ' '));
+        cs.sendMessage("[§aSCB§r]" + hats.toString().replace('[', ' ').replace(']', ' '));
+      }
+    }
+  }
+}
