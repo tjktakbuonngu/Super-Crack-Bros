@@ -1,0 +1,162 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.utilities.LocationUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
+
+public class ArenaManager
+{
+  private static HashMap<String, SCBGame> games = new HashMap();
+  private static SuperCraftBrothers scb;
+  private static Location mainLobby;
+  
+  public ArenaManager(SuperCraftBrothers plugin)
+  {
+    scb = plugin;
+    load();
+  }
+  
+  public static void reloadCfg()
+  {
+    for (SCBGame game : games.values()) {
+      if (game.isInGame()) {
+        game.stopGame();
+      }
+    }
+  }
+  
+  public static void load()
+  {
+    games.clear();
+    File arenas = new File(scb.getDataFolder() + File.separator + "arenas" + File.separator);
+    List<String> al = scb.getConfig().getStringList("enabled-arenas");
+    if (!arenas.exists()) {
+      arenas.mkdir();
+    }
+    if (arenas.listFiles() != null) {
+      for (File f : arenas.listFiles())
+      {
+        String fname = f.getName().replace(".yml", "");
+        if (al.contains(fname))
+        {
+          games.put(fname, new SCBGame(scb, fname, f));
+          if (ConfigManager.debug) {
+            scb.getLogger().info("Map " + fname + " was successfully loaded!");
+          }
+        }
+        else if (ConfigManager.debug)
+        {
+          scb.getLogger().info("Map " + fname + " NOT loaded because it was not in the enabled arenas list");
+        }
+      }
+    }
+    if (scb.getConfig().isString("main-lobby")) {
+      mainLobby = LocationUtils.stringToLocation(scb.getConfig().getString("main-lobby"));
+    }
+  }
+  
+  public static SCBGame createGame(String name)
+  {
+    if (getGame(name) == null)
+    {
+      File file = new File(scb.getDataFolder() + File.separator + "arenas" + File.separator + name + ".yml");
+      try
+      {
+        file.createNewFile();
+      }
+      catch (IOException e)
+      {
+        e.printStackTrace();
+      }
+      SCBGame game = (SCBGame)games.put(name, new SCBGame(scb, name, file));
+      List<String> names = scb.getConfig().getStringList("enabled-arenas");
+      names.add(name);
+      scb.getConfig().set("enabled-arenas", names);
+      scb.saveConfig();
+      return game;
+    }
+    return null;
+  }
+  
+  public static boolean deleteGame(String name)
+  {
+    if (getGame(name) != null)
+    {
+      getGame(name).stopGame();
+      games.remove(name);
+      List<String> names = scb.getConfig().getStringList("enabled-arenas");
+      names.remove(name);
+      Location loc = LocationUtils.stringToLocation(scb.getConfig().getString("map." + name + ".lobby-sign"));
+      if (loc != null) {
+        loc.getBlock().setType(Material.AIR);
+      }
+      scb.getConfig().set("enabled-arenas", names);
+      scb.saveConfig();
+      return true;
+    }
+    return false;
+  }
+  
+  public static SCBGame getGame(String game)
+  {
+    if (games.containsKey(game)) {
+      return (SCBGame)games.get(game);
+    }
+    return null;
+  }
+  
+  public static void addGame(SCBGame game)
+  {
+    if (game == null) {
+      return;
+    }
+    if (!games.containsKey(game.getName())) {
+      games.put(game.getName(), game);
+    }
+  }
+  
+  public static void removeGame(SCBGame game)
+  {
+    if (game == null) {
+      return;
+    }
+    removeGame(game.getName());
+  }
+  
+  public static void removeGame(String game)
+  {
+    if (game == null) {
+      return;
+    }
+    if (games.containsKey(game)) {
+      games.remove(game);
+    }
+  }
+  
+  public static Collection<SCBGame> getAllGames()
+  {
+    return games.values();
+  }
+  
+  public static Location getMainLobby()
+  {
+    return mainLobby;
+  }
+  
+  public static void setMainLobby(Location ml)
+  {
+    scb.getConfig().set("main-lobby", LocationUtils.locationToString(ml));
+    scb.saveConfig();
+    mainLobby = ml;
+  }
+}
