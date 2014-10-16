@@ -1,0 +1,40 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class SCleave
+  extends ISubCommand
+{
+  public SCleave()
+  {
+    super("leave", "scb.leave", 0, true);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    Player p = (Player)cs;
+    SCBPlayer cBro = PlayerManager.getCraftBrother(p);
+    if (cBro != null)
+    {
+      SCBGame game = cBro.getCurrentGame();
+      if (game != null)
+      {
+        if (game.isInGame()) {
+          game.leaveGame(p, false);
+        }
+      }
+      else {
+        p.sendMessage(Lang.GAME_NOT_IN.getString(true));
+      }
+    }
+    else
+    {
+      p.sendMessage(Lang.GAME_NOT_IN.getString(true));
+    }
+  }
+}
