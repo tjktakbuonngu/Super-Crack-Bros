@@ -1,0 +1,71 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import java.util.ArrayList;
+import java.util.List;
+import org.bukkit.configuration.file.FileConfiguration;
+
+public class ConfigManager
+{
+  private static SuperCraftBrothers scb;
+  public static int gemsOnWin = 0;
+  public static int gemsRunnerup = 0;
+  public static boolean doubleJump = false;
+  public static boolean doubleJumpLobby = false;
+  public static boolean inventory = false;
+  public static boolean scoreboard = false;
+  public static boolean gemshop = false;
+  public static boolean hatshop = false;
+  public static boolean overwrite = false;
+  public static boolean infobook = false;
+  public static boolean statsbook = false;
+  public static boolean autoFixSigns = false;
+  public static boolean vault = false;
+  public static int cashOnWin = 0;
+  public static int cashRunnerup = 0;
+  public static boolean debug = true;
+  public static String defaultRank = "DEFAULT";
+  public static int defaultGems = 0;
+  public static int defaultWins = 0;
+  public static int defaultKills = 0;
+  public static int defaultDeaths = 0;
+  public static int randomDropSeconds = 60;
+  public static List<String> defaultClasses = new ArrayList();
+  public static List<String> defaultHats = new ArrayList();
+  
+  public ConfigManager(SuperCraftBrothers scb)
+  {
+    scb = scb;
+    setup();
+  }
+  
+  public void setup()
+  {
+    FileConfiguration c = scb.getConfig();
+    doubleJump = c.getBoolean("general.doublejump.enabled");
+    doubleJumpLobby = c.getBoolean("general.doublejump.inlobby");
+    gemsOnWin = c.getInt("general.gems-on-win");
+    gemsRunnerup = c.getInt("general.gems-runnerup");
+    scoreboard = c.getBoolean("general.scoreboard");
+    gemshop = c.getBoolean("general.inventory.gemshop");
+    hatshop = c.getBoolean("general.inventory.hatshop");
+    overwrite = c.getBoolean("general.inventory.overwrite");
+    infobook = c.getBoolean("general.inventory.infobook");
+    statsbook = c.getBoolean("general.inventory.statsbook");
+    inventory = c.getBoolean("general.inventory.enabled");
+    debug = c.getBoolean("general.debug");
+    defaultRank = c.getString("general.default-rank");
+    defaultGems = c.getInt("general.default-gems");
+    defaultClasses = c.getStringList("general.default-classes");
+    defaultHats = c.getStringList("general.default-hats");
+    defaultGems = c.getInt("general.default-gems");
+    defaultWins = c.getInt("general.default-wins");
+    defaultDeaths = c.getInt("general.default-deaths");
+    defaultKills = c.getInt("general.default-kills");
+    autoFixSigns = c.getBoolean("general.auto-fix-signs");
+    randomDropSeconds = c.getInt("general.random-drop-seconds");
+    vault = c.getBoolean("general.vault.enabled");
+    cashOnWin = c.getInt("general.vault.money-on-win");
+    cashRunnerup = c.getInt("general.vault.money-on-runnerup");
+  }
+}
