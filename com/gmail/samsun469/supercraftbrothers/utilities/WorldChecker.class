@@ -1,0 +1,96 @@
+package com.gmail.samsun469.supercraftbrothers.utilities;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBMap;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+
+public class WorldChecker
+{
+  public static boolean main(Player p)
+  {
+    Location l = ArenaManager.getMainLobby();
+    if (l != null)
+    {
+      if (p.getWorld().getName().equals(l.getWorld().getName())) {
+        return true;
+      }
+    }
+    else {
+      Bukkit.getLogger().severe("[SCB] No Main Lobby Set!");
+    }
+    return false;
+  }
+  
+  public static boolean lobby(Player p)
+  {
+    SCBPlayer c = PlayerManager.getCraftBrother(p);
+    if (c != null)
+    {
+      SCBGame game = c.getCurrentGame();
+      if (game != null)
+      {
+        Location l = game.getMap().getLocation("lobby");
+        if (l != null)
+        {
+          if (c.getPlayer().getWorld().getName().equals(l.getWorld().getName())) {
+            return true;
+          }
+        }
+        else {
+          Bukkit.getLogger().severe("[SCB] No Class Lobby set for " + game.getName());
+        }
+      }
+    }
+    return false;
+  }
+  
+  public static boolean game(Player p)
+  {
+    SCBPlayer c = PlayerManager.getCraftBrother(p);
+    if (c != null)
+    {
+      SCBGame game = c.getCurrentGame();
+      if (game != null)
+      {
+        String currentGameWorld = c.getCurrentGame().getMap().getLocation("spawn1").getWorld().getName();
+        if ((c != null) && (currentGameWorld != null) && (c.getPlayer().getWorld().getName().equals(currentGameWorld))) {
+          if (game.isInGame()) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+  
+  public static boolean mainLobby(Player p)
+  {
+    if ((main(p)) || (lobby(p))) {
+      return true;
+    }
+    return false;
+  }
+  
+  public static boolean mainLobbyGame(Player p)
+  {
+    if ((main(p)) || (lobby(p)) || (game(p))) {
+      return true;
+    }
+    return false;
+  }
+  
+  public static boolean lobbyGame(Player p)
+  {
+    if ((lobby(p)) || (game(p))) {
+      return true;
+    }
+    return false;
+  }
+}
