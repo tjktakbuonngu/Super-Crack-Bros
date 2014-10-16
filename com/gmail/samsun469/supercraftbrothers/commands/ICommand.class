@@ -1,0 +1,41 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import org.bukkit.command.CommandSender;
+
+public abstract class ICommand
+{
+  private String command;
+  private String perm;
+  private int args;
+  private boolean playerOnly;
+  
+  public ICommand(String command, String perm, int args, boolean playerOnly)
+  {
+    this.command = command;
+    this.perm = perm;
+    this.args = args;
+    this.playerOnly = playerOnly;
+  }
+  
+  public String getCommand()
+  {
+    return this.command;
+  }
+  
+  public String getPerm()
+  {
+    return this.perm;
+  }
+  
+  public int getArgs()
+  {
+    return this.args;
+  }
+  
+  public boolean playerOnly()
+  {
+    return this.playerOnly;
+  }
+  
+  public abstract void onCommand(CommandSender paramCommandSender, String[] paramArrayOfString);
+}
