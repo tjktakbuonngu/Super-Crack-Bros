@@ -1,0 +1,24 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.FoodLevelChangeEvent;
+
+public class DFoodLevel
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void HungerLoss(FoodLevelChangeEvent e)
+  {
+    if ((e.getEntity() instanceof Player))
+    {
+      Player p = (Player)e.getEntity();
+      if (WorldChecker.mainLobbyGame(p)) {
+        e.setFoodLevel(20);
+      }
+    }
+  }
+}
