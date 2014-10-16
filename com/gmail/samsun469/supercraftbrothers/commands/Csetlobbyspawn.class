@@ -1,0 +1,31 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBMap;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class Csetlobbyspawn
+  extends ICommand
+{
+  public Csetlobbyspawn()
+  {
+    super("setlobbyspawn", "scb.setlobbyspawn", 1, true);
+  }
+  
+  public void onCommand(CommandSender cs, String[] strings)
+  {
+    SCBGame game = ArenaManager.getGame(strings[0]);
+    if (game == null)
+    {
+      cs.sendMessage(Lang.MAP_NOT_FOUND.getString(true));
+    }
+    else
+    {
+      game.getMap().setLocation("lobby", ((Player)cs).getLocation());
+      cs.sendMessage(Lang.MAP_SET_LOBBY.getString(true).replace("%m", game.getName()));
+    }
+  }
+}
