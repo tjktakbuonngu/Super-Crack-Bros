@@ -1,0 +1,127 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import java.util.Random;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+public class PlayerDamage
+  implements Listener
+{
+  Random random = new Random();
+  
+  @EventHandler(priority=EventPriority.HIGH)
+  public void CheckEBDEE(EntityDamageByEntityEvent e)
+  {
+    if ((e.getEntity() instanceof Player)) {
+      if ((e.getDamager() instanceof Player))
+      {
+        Player damaged = (Player)e.getEntity();
+        Player damager = (Player)e.getDamager();
+        if ((damaged.getLastDamageCause() != null) && (damaged.getLastDamageCause().equals(EntityDamageEvent.DamageCause.FALL)))
+        {
+          e.setCancelled(true);
+          return;
+        }
+        if ((WorldChecker.mainLobbyGame(damaged)) && (WorldChecker.mainLobbyGame(damager)))
+        {
+          SCBPlayer CBdamaged = PlayerManager.getCraftBrother(damaged);
+          SCBPlayer CBdamager = PlayerManager.getCraftBrother(damager);
+          if ((CBdamaged != null) && (CBdamager != null))
+          {
+            if ((CBdamaged.getCurrentGame().isInGame()) && (CBdamager.getCurrentGame().isInGame()))
+            {
+              if (CBdamaged.getCurrentGame().equals(CBdamager.getCurrentGame()))
+              {
+                CBdamaged.setLastDamagedBy(CBdamager.getPlayer().getName());
+                String str1;
+                switch ((str1 = CBdamaged.getCurrentClass()).hashCode())
+                {
+                case 80238: 
+                  if (str1.equals("Pig")) {
+                    Pig(damaged);
+                  }
+                  break;
+                }
+                String str2;
+                switch ((str2 = CBdamager.getCurrentClass()).hashCode())
+                {
+                case -1938719552: 
+                  if (str2.equals("Ocelot")) {
+                    break;
+                  }
+                  break;
+                case -1812086011: 
+                  if (str2.equals("Spider")) {}
+                  break;
+                case 80134418: 
+                  if (!str2.equals("Squid"))
+                  {
+                    return;Ocelot(damaged);
+                  }
+                  else
+                  {
+                    Squid(damaged);
+                    return;
+                    
+                    Spider(damaged);
+                  }
+                  break;
+                }
+              }
+              else
+              {
+                e.setCancelled(true);
+              }
+            }
+            else {
+              e.setCancelled(true);
+            }
+          }
+          else {
+            e.setCancelled(true);
+          }
+        }
+      }
+    }
+  }
+  
+  public void Pig(Player p)
+  {
+    p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 1));
+  }
+  
+  public void Ocelot(Player p)
+  {
+    p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 100, 3));
+  }
+  
+  public void Squid(Player p)
+  {
+    int i = this.random.nextInt(9);
+    if ((i < 9) && (i > 6)) {
+      p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 1));
+    }
+    i = this.random.nextInt(9);
+    if ((i < 8) && (i > 6)) {
+      p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 60, 1));
+    }
+  }
+  
+  public void Spider(Player p)
+  {
+    int i = this.random.nextInt(9);
+    if ((i < 9) && (i > 5)) {
+      p.addPotionEffect(new PotionEffect(PotionEffectType.POISON, 60, 1));
+    }
+  }
+}
