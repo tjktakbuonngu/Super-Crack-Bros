@@ -1,0 +1,55 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.managers.StatsManager;
+import java.util.HashMap;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+public class PlayerQuit
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.MONITOR)
+  public void onPlayerQuit(PlayerQuitEvent event)
+  {
+    StatsManager.setPlayerSpawning(event.getPlayer().getName(), true);
+    String name = event.getPlayer().getName();
+    SCBPlayer bro = PlayerManager.getCraftBrother(event.getPlayer());
+    if (bro != null)
+    {
+      SCBGame game = bro.getCurrentGame();
+      if (game.isInGame()) {
+        game.leaveGame(event.getPlayer(), true);
+      } else {
+        game.leaveLobby(event.getPlayer(), true);
+      }
+    }
+    for (SCBGame game : ArenaManager.getAllGames())
+    {
+      if (game.getHashMap(0).containsKey(name)) {
+        game.getHashMap(0).remove(name);
+      }
+      if (game.getHashMap(1).containsKey(name)) {
+        game.getHashMap(1).remove(name);
+      }
+    }
+    if (PlayerInteract.gcmmenus.containsKey(event.getPlayer().getName())) {
+      PlayerInteract.gcmmenus.remove(event.getPlayer().getName());
+    }
+    if (PlayerInteract.gcsmenus.containsKey(event.getPlayer().getName())) {
+      PlayerInteract.gcsmenus.remove(event.getPlayer().getName());
+    }
+    if (PlayerInteract.hsmenus.containsKey(event.getPlayer().getName())) {
+      PlayerInteract.hsmenus.remove(event.getPlayer().getName());
+    }
+    if (PlayerInteract.vipmenus.containsKey(event.getPlayer().getName())) {
+      PlayerInteract.vipmenus.remove(event.getPlayer().getName());
+    }
+  }
+}
