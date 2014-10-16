@@ -1,0 +1,258 @@
+package com.gmail.samsun469.supercraftbrothers;
+
+import com.gmail.samsun469.supercraftbrothers.managers.ColorManager;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import java.lang.reflect.Method;
+import java.util.Random;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.scheduler.BukkitRunnable;
+
+public class SCBPlayer
+{
+  private int lives;
+  private int kills;
+  private int deaths;
+  private int bowStage;
+  private int livesAtRegen;
+  private boolean isInLobby;
+  private boolean respawning;
+  
+  public static enum respawn
+  {
+    TOLOBBY("tolobby"),  TOGAME("togame"),  TOMAIN("tomain");
+    
+    private String respawn;
+    
+    private respawn(String r)
+    {
+      this.respawn = r;
+    }
+    
+    public String toString()
+    {
+      return this.respawn;
+    }
+  }
+  
+  private boolean spectating = false;
+  private String lastDamagedBy;
+  private String name;
+  private String currentClass;
+  private SCBGame currentGame;
+  private SuperCraftBrothers plugin;
+  private respawn reason;
+  
+  public SCBPlayer(String name, SuperCraftBrothers plugin)
+  {
+    this.name = name;
+    this.plugin = plugin;
+    this.lives = 5;
+    this.kills = 0;
+  }
+  
+  public Player getPlayer()
+  {
+    return Bukkit.getPlayer(this.name);
+  }
+  
+  public int getLivesLeft()
+  {
+    return this.lives;
+  }
+  
+  public int getKills()
+  {
+    return this.kills;
+  }
+  
+  public int getDeaths()
+  {
+    return this.deaths;
+  }
+  
+  public SCBRank getRank()
+  {
+    return RankManager.getPlayerRank(this.name);
+  }
+  
+  public boolean isInLobby()
+  {
+    return this.isInLobby;
+  }
+  
+  public boolean isInGame()
+  {
+    return !this.isInLobby;
+  }
+  
+  public SCBGame getCurrentGame()
+  {
+    return this.currentGame;
+  }
+  
+  public String getCurrentClass()
+  {
+    return this.currentClass;
+  }
+  
+  public String getLastDamagedBy()
+  {
+    return this.lastDamagedBy;
+  }
+  
+  public boolean isRespawning()
+  {
+    return this.respawning;
+  }
+  
+  public respawn getReason()
+  {
+    return this.reason;
+  }
+  
+  public boolean isSpectating()
+  {
+    return this.spectating;
+  }
+  
+  public void setLivesLeft(int i)
+  {
+    this.lives = i;
+  }
+  
+  public void setKills(int i)
+  {
+    this.kills = i;
+  }
+  
+  public void setDeaths(int i)
+  {
+    this.deaths = i;
+  }
+  
+  public void setInLobby(boolean b)
+  {
+    this.isInLobby = b;
+  }
+  
+  public void setCurrentGame(SCBGame g)
+  {
+    this.currentGame = g;
+  }
+  
+  public void setLastDamagedBy(String lastDamagedBy)
+  {
+    this.lastDamagedBy = lastDamagedBy;
+  }
+  
+  public void setRespawning(boolean b)
+  {
+    this.respawning = b;
+  }
+  
+  public void setSpectating(boolean b)
+  {
+    this.spectating = b;
+  }
+  
+  public void setReason(respawn r)
+  {
+    this.reason = r;
+  }
+  
+  public void setCurrentClass(String c)
+  {
+    this.currentClass = c;
+    getPlayer().sendMessage(ChatColor.GREEN + "You have chosen the " + ColorManager.getName(c));
+  }
+  
+  public void apply()
+  {
+    if (this.currentClass == null)
+    {
+      Random random = new Random();
+      int i = random.nextInt(15);
+      setCurrentClass(com.gmail.samsun469.supercraftbrothers.menus.ClassMenu.classes[i]);
+    }
+    try
+    {
+      ColorManager.clearInventory(getPlayer());
+      String className = "com.gmail.samsun469.supercraftbrothers.classes." + this.currentClass.toLowerCase();
+      Class<?> c = Class.forName(className);
+      Method[] m = c.getDeclaredMethods();
+      Object carObj = null;
+      carObj = c.newInstance();
+      Method callM = m[0];
+      callM.invoke(carObj, new Object[] { this });
+      getPlayer().updateInventory();
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+      getCurrentGame().leaveGame(getPlayer(), false);
+    }
+  }
+  
+  public void startBowRegen()
+  {
+    this.bowStage = 1;
+    this.livesAtRegen = this.lives;
+    BukkitRunnable br = new BukkitRunnable()
+    {
+      public void run()
+      {
+        if (SCBPlayer.this.livesAtRegen != SCBPlayer.this.lives)
+        {
+          cancel();
+        }
+        else
+        {
+          ItemStack bow = new ItemStack(Material.BOW, 1);
+          bow.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
+          if (SCBPlayer.this.bowStage < 11)
+          {
+            if (SCBPlayer.this.getPlayer() == null)
+            {
+              cancel();
+            }
+            else if ((SCBPlayer.this.getPlayer().getInventory().getItem(2) != null) && (SCBPlayer.this.getPlayer().getInventory().getItem(2).getType().equals(Material.BOW)))
+            {
+              int d = 360 - SCBPlayer.this.bowStage * 36;
+              bow.setDurability((short)d);
+              SCBPlayer.this.getPlayer().getInventory().setItem(2, bow);
+              SCBPlayer.this.getPlayer().updateInventory();
+              SCBPlayer.this.bowStage += 1;
+            }
+          }
+          else
+          {
+            cancel();
+            SCBPlayer.this.bowStage = 1;
+          }
+        }
+      }
+    };
+    br.runTaskTimer(this.plugin, 0L, 20L);
+  }
+  
+  public void heal()
+  {
+    Player player = getPlayer();
+    player.setFoodLevel(20);
+    player.setExp(0.0F);
+    player.setExhaustion(0.0F);
+    player.setHealth(20.0D);
+    player.setFoodLevel(20);
+    player.setFireTicks(0);
+    for (PotionEffect effect : player.getActivePotionEffects()) {
+      player.removePotionEffect(effect.getType());
+    }
+  }
+}
