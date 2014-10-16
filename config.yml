@@ -1,0 +1,81 @@
+general:
+  debug: true
+  vault:
+    enabled: false
+    money-on-win: 50
+    money-on-runnerup: 25
+  gems-on-win: 2
+  gems-runnerup: 1
+  doublejump:
+    enabled: true
+    inlobby: true
+  scoreboard: true
+  inventory:
+    enabled: true
+    infobook: true
+    statsbook: true
+    gemshop: true
+    hatshop: true
+    overwrite: true
+  auto-fix-signs: true
+  default-rank: DEFAULT
+  default-gems: 0
+  default-classes: {}
+  default-hats: {}
+  default-kills: 0
+  default-deaths: 0
+  default-wins: 0
+  random-drop-seconds: 60 
+enabled-ranks: {}
+enabled-arenas: {}
+
+book:
+  - "Page 1"
+  - "Page 2"
+  - "Page 3 \nThis is a line break"
+
+listeners:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  - 16
+  - 17
+  - 18
+  - 19
+  - 20
+  - 21
+
+commands:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+
+subcommands:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  - 8
+  - 9
+  - 10
+  - 11
