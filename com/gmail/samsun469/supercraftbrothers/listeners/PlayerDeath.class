@@ -1,0 +1,78 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.events.SCBDeathEvent;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import java.util.List;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.plugin.PluginManager;
+
+public class PlayerDeath
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.MONITOR)
+  public void onPlayerDeath(PlayerDeathEvent event)
+  {
+    if (WorldChecker.mainLobbyGame(event.getEntity()))
+    {
+      if (PlayerManager.isInGame(event.getEntity().getName()))
+      {
+        SCBPlayer bro1 = PlayerManager.getCraftBrother(event.getEntity());
+        bro1.setDeaths(bro1.getDeaths() + 1);
+        String deathmessage = event.getDeathMessage();
+        if (bro1 != null)
+        {
+          if (bro1.getCurrentGame() == null)
+          {
+            SuperCraftBrothers.getInstance().getLogger().severe(bro1.getPlayer().getName() + " wasn't in a game???");
+          }
+          else
+          {
+            if (bro1.getCurrentClass().equalsIgnoreCase("ChargedCreeper")) {
+              bro1.getPlayer().getWorld().createExplosion(bro1.getPlayer().getLocation().getX(), bro1.getPlayer().getLocation().getY(), bro1.getPlayer().getLocation().getZ(), 3.0F, false, false);
+            }
+            if (bro1.getLastDamagedBy() != null)
+            {
+              SCBPlayer bro2 = PlayerManager.getCraftBrother(bro1.getLastDamagedBy());
+              if (deathmessage != null) {
+                try
+                {
+                  Bukkit.getPluginManager().callEvent(new SCBDeathEvent(bro1, bro2, bro1.getCurrentGame(), deathmessage));
+                }
+                catch (Exception e)
+                {
+                  SuperCraftBrothers.getInstance().getLogger().severe("Error at line 43 of PlayerDeath");
+                }
+              }
+            }
+            else
+            {
+              try
+              {
+                Bukkit.getPluginManager().callEvent(new SCBDeathEvent(bro1, bro1.getCurrentGame(), deathmessage));
+              }
+              catch (Exception e)
+              {
+                SuperCraftBrothers.getInstance().getLogger().severe("Error at line 54 of PlayerDeath");
+              }
+            }
+          }
+          bro1.setLastDamagedBy(null);
+        }
+      }
+      event.setDeathMessage(null);
+      event.setDroppedExp(0);
+      event.getDrops().clear();
+    }
+  }
+}
