@@ -1,0 +1,3 @@
+package com.gmail.samsun469.supercraftbrothers.events;
+
+public class SCBInteractEvent {}
