@@ -1,0 +1,54 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SCBClass;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+import org.bukkit.configuration.file.FileConfiguration;
+
+public class ClassManager
+{
+  private static SuperCraftBrothers scb;
+  private static File CLASS_DIR = new File(scb.getDataFolder() + File.separator + "classes");
+  private static HashMap<String, SCBClass> classes = new HashMap();
+  private static List<String> enabledclasses = new ArrayList();
+  
+  public ClassManager(SuperCraftBrothers plugin)
+  {
+    scb = plugin;
+    load();
+  }
+  
+  private static void load()
+  {
+    enabledclasses = scb.getConfig().getStringList("enabled-classes");
+    if (!CLASS_DIR.exists()) {
+      CLASS_DIR.mkdir();
+    }
+    if (CLASS_DIR.listFiles() != null) {
+      for (File CLASS_FILE : CLASS_DIR.listFiles())
+      {
+        String name = CLASS_FILE.getName().replace(".yml", "");
+        if (enabledclasses.contains(name))
+        {
+          classes.put(name, new SCBClass(name, scb));
+          if (ConfigManager.debug) {
+            scb.getLogger().info("Successfully registered the class " + name);
+          }
+        }
+        else if (ConfigManager.debug)
+        {
+          scb.getLogger().info("The class " + name + " was NOT loaded");
+        }
+      }
+    }
+  }
+  
+  public static SCBClass getClass(String name)
+  {
+    return (SCBClass)classes.get(name);
+  }
+}
