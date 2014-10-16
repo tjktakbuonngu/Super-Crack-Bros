@@ -1,0 +1,57 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import java.util.HashMap;
+import org.bukkit.entity.Player;
+
+public class PlayerManager
+{
+  private static HashMap<String, SCBPlayer> players = new HashMap();
+  private static SuperCraftBrothers scb;
+  
+  public PlayerManager(SuperCraftBrothers plugin)
+  {
+    scb = plugin;
+    players.clear();
+  }
+  
+  public static SCBPlayer getCraftBrother(String player)
+  {
+    if (player == null) {
+      return null;
+    }
+    if ((players.containsKey(player)) && (players.get(player) != null)) {
+      return (SCBPlayer)players.get(player);
+    }
+    return null;
+  }
+  
+  public static void addCraftBrother(String player)
+  {
+    players.put(player, new SCBPlayer(player, scb));
+  }
+  
+  public static void removeCraftBrother(String player)
+  {
+    if (player == null) {
+      return;
+    }
+    if (players.containsKey(player)) {
+      players.remove(player);
+    }
+  }
+  
+  public static SCBPlayer getCraftBrother(Player player)
+  {
+    if (player == null) {
+      return null;
+    }
+    return getCraftBrother(player.getName());
+  }
+  
+  public static boolean isInGame(String player)
+  {
+    return players.containsKey(player);
+  }
+}
