@@ -1,0 +1,148 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import com.gmail.samsun469.supercraftbrothers.managers.StatsManager;
+import com.gmail.samsun469.supercraftbrothers.menus.GemClassShop;
+import com.gmail.samsun469.supercraftbrothers.menus.HatShop;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+public class SCfix
+  extends ISubCommand
+{
+  public SCfix()
+  {
+    super("fix", "scb.fix", 0, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    SuperCraftBrothers scb = SuperCraftBrothers.getInstance();
+    File f = new File(scb.getDataFolder() + File.separator + "users");
+    List<String> maps = new ArrayList();
+    if (f.listFiles() != null) {
+      for (File pf : f.listFiles()) {
+        if (pf.isFile())
+        {
+          scb.getLogger().info("Fixing player file for " + pf.getName().replace(".yml", ""));
+          String name = pf.getName().replace(".yml", "");
+          FileConfiguration c = YamlConfiguration.loadConfiguration(pf);
+          List<String> classes = new ArrayList();
+          List<String> hats = new ArrayList();
+          if (c.getConfigurationSection("unlocked_characters") != null)
+          {
+            c.getConfigurationSection("unlocked_characters").getKeys(false).isEmpty();
+          }
+          else
+          {
+            for (String clas : GemClassShop.classes) {
+              if (SuperCraftBrothers.getInstance().getPlayerConfig(pf.getName().replace(".yml", "")).isBoolean("unlocked_characters." + clas.toLowerCase())) {
+                classes.add(clas);
+              }
+            }
+            for (String clas : StatsManager.getAllClasses(name)) {
+              if (!classes.contains(clas)) {
+                classes.add(clas);
+              }
+            }
+          }
+          if (c.getConfigurationSection("hats") != null)
+          {
+            c.getConfigurationSection("hats").getKeys(false).isEmpty();
+          }
+          else
+          {
+            for (String hat : HatShop.classes) {
+              if (SuperCraftBrothers.getInstance().getPlayerConfig(pf.getName().replace(".yml", "")).isBoolean("hat." + hat)) {
+                hats.add(hat);
+              }
+            }
+            for (String hat : StatsManager.getAllHats(name)) {
+              if (!hats.contains(hat)) {
+                hats.add(hat);
+              }
+            }
+          }
+          c.set("unlocked_characters", classes);
+          c.set("unlocked_hats", hats);
+          c.set("hat", new ArrayList());
+          if (RankManager.getRank(c.getString("rank")) == null)
+          {
+            if (RankManager.getAllrank().isEmpty())
+            {
+              scb.getLogger().severe("There are no enabled ranks!");
+              return;
+            }
+            c.set("rank", scb.getConfig().getStringList("enabled-ranks").get(0));
+            try
+            {
+              c.save(pf);
+              scb.getLogger().info("Fixed rank for " + pf.getName().replace(".yml", ""));
+            }
+            catch (IOException e)
+            {
+              e.printStackTrace();
+            }
+          }
+          try
+          {
+            c.save(pf);
+            scb.getLogger().info("Player file for " + pf.getName().replace(".yml", "") + " successfully fixed!");
+          }
+          catch (IOException e)
+          {
+            e.printStackTrace();
+            scb.getLogger().severe("Uh oh! Something went wrong. Please post on pastebin.com the error above and post the link on BukkitDev");
+          }
+        }
+      }
+    }
+    File map_file;
+    Object map_config;
+    for (String map : scb.getConfig().getStringList("maps"))
+    {
+      maps.add(map);
+      map_file = new File(scb.getDataFolder() + File.separator + "arenas" + File.separator + map + ".yml");
+      map_config = YamlConfiguration.loadConfiguration(map_file);
+      ((FileConfiguration)map_config).set("lobby", scb.getConfig().getString("map." + map + ".class-lobby"));
+      ((FileConfiguration)map_config).set("sign", scb.getConfig().getString("map." + map + ".lobby-sign"));
+      ((FileConfiguration)map_config).set("spawn1", scb.getConfig().getString("map." + map + ".sp1"));
+      ((FileConfiguration)map_config).set("spawn2", scb.getConfig().getString("map." + map + ".sp2"));
+      ((FileConfiguration)map_config).set("spawn3", scb.getConfig().getString("map." + map + ".sp3"));
+      ((FileConfiguration)map_config).set("spawn4", scb.getConfig().getString("map." + map + ".sp4"));
+      try
+      {
+        ((FileConfiguration)map_config).save(map_file);
+        scb.getLogger().info("Map " + map + " successfully fixed!");
+      }
+      catch (IOException e)
+      {
+        e.printStackTrace();
+        scb.getLogger().severe("Uh oh! Something went wrong. Please post on pastebin.com the error above and post the link on BukkitDev");
+      }
+    }
+    for (String map : scb.getConfig().getStringList("enabled-arenas")) {
+      maps.add(map);
+    }
+    scb.getConfig().set("maps", null);
+    scb.getConfig().set("map", null);
+    scb.getConfig().set("enabled-arenas", maps);
+    scb.getConfig().set("respawning", null);
+    scb.saveConfig();
+    for (File file : new File(scb.getDataFolder().getAbsolutePath().replace("SuperCraftBrothers", "")).listFiles()) {
+      if (file.getName().contains("\\")) {
+        file.delete();
+      }
+    }
+  }
+}
