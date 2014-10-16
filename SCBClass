@@ -1,0 +1,6 @@
+package com.gmail.samsun469.supercraftbrothers;
+
+public class SCBClass
+{
+  public SCBClass(String name, SuperCraftBrothers scb) {}
+}
