@@ -1,0 +1,7 @@
+bonus-gems: 0
+gem-multiplier: 2
+classes:
+- SethBling
+- Mollstam
+can-double-jump: true
+can-spectate: true
