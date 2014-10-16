@@ -1,0 +1,28 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBMap;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class SCtp
+  extends ISubCommand
+{
+  public SCtp()
+  {
+    super("tp", "scb.tp", 1, true);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    Player p = (Player)cs;
+    SCBGame game = ArenaManager.getGame(args[0]);
+    if (game != null) {
+      p.teleport(game.getMap().getLocation("lobby"));
+    } else {
+      p.sendMessage(Lang.MAP_NOT_FOUND.getString(true));
+    }
+  }
+}
