@@ -1,0 +1,66 @@
+package com.gmail.samsun469.supercraftbrothers;
+
+import com.gmail.samsun469.supercraftbrothers.utilities.LocationUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import org.bukkit.Location;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+public class SCBMap
+{
+  private File cfile;
+  private FileConfiguration config;
+  private HashMap<String, Location> locs = new HashMap();
+  private SCBGame game;
+  
+  public SCBMap(SCBGame game)
+  {
+    this.game = game;
+    this.cfile = game.getFile();
+    this.config = YamlConfiguration.loadConfiguration(this.cfile);
+  }
+  
+  public void load()
+  {
+    this.locs.put("spawn1", LocationUtils.stringToLocation(this.config.getString("spawn1")));
+    this.locs.put("spawn2", LocationUtils.stringToLocation(this.config.getString("spawn2")));
+    this.locs.put("spawn3", LocationUtils.stringToLocation(this.config.getString("spawn3")));
+    this.locs.put("spawn4", LocationUtils.stringToLocation(this.config.getString("spawn4")));
+    this.locs.put("lobby", LocationUtils.stringToLocation(this.config.getString("lobby")));
+    this.locs.put("sign", LocationUtils.stringToLocation(this.config.getString("sign")));
+    this.locs.put("spectation", LocationUtils.stringToLocation(this.config.getString("spectation")));
+  }
+  
+  public void save()
+  {
+    for (String s : this.locs.keySet()) {
+      this.config.set(s, LocationUtils.locationToString((Location)this.locs.get(s)));
+    }
+    try
+    {
+      this.config.save(this.cfile);
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+  }
+  
+  public SCBGame getGame()
+  {
+    return this.game;
+  }
+  
+  public void setLocation(String locationName, Location location)
+  {
+    this.locs.put(locationName, location);
+    save();
+  }
+  
+  public Location getLocation(String locationName)
+  {
+    return (Location)this.locs.get(locationName);
+  }
+}
