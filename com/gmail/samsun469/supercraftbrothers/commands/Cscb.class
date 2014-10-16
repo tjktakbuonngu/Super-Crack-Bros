@@ -1,0 +1,57 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class Cscb
+  extends ICommand
+{
+  public Cscb()
+  {
+    super("scb", "", 3, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] strings)
+  {
+    if (strings.length == 0)
+    {
+      cs.sendMessage("[§aSCB§r] v1-ALPHA");
+      cs.sendMessage("§aDeveloped by: Tjktakbuonngu");
+    }
+    else
+    {
+      for (ISubCommand sc : CommandListener.subcommands) {
+        if (sc.getCommand().equalsIgnoreCase(strings[0]))
+        {
+          if (((sc.playerOnly()) && ((cs instanceof Player))) || ((!sc.playerOnly()) && ((cs instanceof Player))) || ((!sc.playerOnly()) && (!(cs instanceof Player))))
+          {
+            if (cs.hasPermission(sc.getPerm()))
+            {
+              if (strings.length - 1 >= sc.getArgs())
+              {
+                String[] args = new String[strings.length - 1];
+                for (int i = 0; i < args.length; i++)
+                {
+                  args[i] = new String();
+                  if ((strings.length > i + 1) && (strings[(i + 1)] != null)) {
+                    args[i] = strings[(i + 1)];
+                  }
+                }
+                sc.onCommand(cs, args);
+                return;
+              }
+              cs.sendMessage(Lang.COMMAND_NOT_ENOUGH_ARGS.getString(true));
+              return;
+            }
+            cs.sendMessage(Lang.COMMAND_NO_PERMISSION.getString(true));
+            return;
+          }
+          cs.sendMessage(Lang.COMMAND_PLAYER_ONLY.getString(true));
+          return;
+        }
+      }
+      cs.sendMessage(Lang.COMMAND_NOT_FOUND.getString(true));
+    }
+  }
+}
