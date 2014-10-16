@@ -1,0 +1,57 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class SCstart
+  extends ISubCommand
+{
+  public SCstart()
+  {
+    super("start", "scb.start", 0, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    if ((cs instanceof Player))
+    {
+      Player p = (Player)cs;
+      SCBPlayer bro = PlayerManager.getCraftBrother(p);
+      if (args.length == 0)
+      {
+        if ((bro != null) && (bro.getCurrentGame() != null)) {
+          bro.getCurrentGame().startGame();
+        } else {
+          p.sendMessage(Lang.GAME_NOT_IN.getString(true));
+        }
+      }
+      else if (ArenaManager.getGame(args[0]) != null)
+      {
+        ArenaManager.getGame(args[0]).startLobbyCountdown();
+        cs.sendMessage(Lang.GAME_STARTED_ADMIN.getString(true));
+      }
+      else
+      {
+        cs.sendMessage(Lang.MAP_NOT_FOUND.getString(true));
+      }
+    }
+    else if (args.length == 0)
+    {
+      cs.sendMessage(Lang.MAP_NOT_FOUND.getString(true));
+    }
+    else if (ArenaManager.getGame(args[0]) == null)
+    {
+      cs.sendMessage(Lang.MAP_NOT_FOUND.getString(true));
+    }
+    else
+    {
+      ArenaManager.getGame(args[0]).startLobbyCountdown();
+      cs.sendMessage(Lang.GAME_STARTED_ADMIN.getString(true));
+    }
+  }
+}
