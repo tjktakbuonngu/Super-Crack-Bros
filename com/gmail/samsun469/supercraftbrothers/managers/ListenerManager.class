@@ -1,0 +1,80 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.listeners.BowFire;
+import com.gmail.samsun469.supercraftbrothers.listeners.DBlockBreak;
+import com.gmail.samsun469.supercraftbrothers.listeners.DBlockPlace;
+import com.gmail.samsun469.supercraftbrothers.listeners.DExplode;
+import com.gmail.samsun469.supercraftbrothers.listeners.DFoodLevel;
+import com.gmail.samsun469.supercraftbrothers.listeners.DInventoryClick;
+import com.gmail.samsun469.supercraftbrothers.listeners.DPlayerCommand;
+import com.gmail.samsun469.supercraftbrothers.listeners.DPlayerDropItem;
+import com.gmail.samsun469.supercraftbrothers.listeners.DPlayerPickupItem;
+import com.gmail.samsun469.supercraftbrothers.listeners.DWeatherChange;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerDamage;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerDeath;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerEgg;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerInteract;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerJoin;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerQuit;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerRespawn;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerToggleFlight;
+import com.gmail.samsun469.supercraftbrothers.listeners.PlayerWorld;
+import com.gmail.samsun469.supercraftbrothers.listeners.SCBDeath;
+import com.gmail.samsun469.supercraftbrothers.listeners.SignChange;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+import org.bukkit.Server;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.Listener;
+import org.bukkit.plugin.PluginManager;
+
+public class ListenerManager
+{
+  private static SuperCraftBrothers scb;
+  private static HashMap<Integer, Listener> listeners = new HashMap();
+  private static List<Integer> disabled;
+  
+  public ListenerManager(SuperCraftBrothers plugin)
+  {
+    scb = plugin;
+    load();
+  }
+  
+  protected static void load()
+  {
+    listeners.put(Integer.valueOf(1), new BowFire());
+    listeners.put(Integer.valueOf(2), new DBlockBreak());
+    listeners.put(Integer.valueOf(3), new DBlockPlace());
+    listeners.put(Integer.valueOf(4), new DInventoryClick());
+    listeners.put(Integer.valueOf(5), new DPlayerCommand());
+    listeners.put(Integer.valueOf(6), new DPlayerDropItem());
+    listeners.put(Integer.valueOf(7), new DPlayerPickupItem());
+    listeners.put(Integer.valueOf(8), new DWeatherChange());
+    listeners.put(Integer.valueOf(9), new DExplode());
+    listeners.put(Integer.valueOf(10), new DFoodLevel());
+    listeners.put(Integer.valueOf(11), new PlayerDamage());
+    listeners.put(Integer.valueOf(12), new PlayerDeath());
+    listeners.put(Integer.valueOf(13), new PlayerEgg());
+    listeners.put(Integer.valueOf(14), new PlayerInteract());
+    listeners.put(Integer.valueOf(15), new PlayerJoin());
+    listeners.put(Integer.valueOf(16), new PlayerQuit());
+    listeners.put(Integer.valueOf(17), new PlayerRespawn());
+    listeners.put(Integer.valueOf(18), new PlayerToggleFlight());
+    listeners.put(Integer.valueOf(19), new PlayerWorld());
+    listeners.put(Integer.valueOf(20), new SCBDeath());
+    listeners.put(Integer.valueOf(21), new SignChange());
+    FileConfiguration c = scb.getConfig();
+    disabled = c.getIntegerList("listeners");
+    for (int i = 1; i < 22; i++) {
+      if ((disabled != null) || (disabled.contains(Integer.valueOf(i))))
+      {
+        scb.getServer().getPluginManager().registerEvents((Listener)listeners.get(Integer.valueOf(i)), scb);
+        if (ConfigManager.debug) {
+          scb.getLogger().info("Successfully registered listener #" + i);
+        }
+      }
+    }
+  }
+}
