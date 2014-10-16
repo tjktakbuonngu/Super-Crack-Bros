@@ -1,0 +1,20 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import org.bukkit.command.CommandSender;
+
+public class Csetrank
+  extends ICommand
+{
+  public Csetrank()
+  {
+    super("setrank", "scb.setrank", 2, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] strings)
+  {
+    RankManager.setPlayerRank(strings[0], strings[1]);
+    cs.sendMessage(Lang.RANK_UPDATED.getString(true).replace("%p", strings[0]));
+  }
+}
