@@ -1,0 +1,21 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class Csetmainlobby
+  extends ICommand
+{
+  public Csetmainlobby()
+  {
+    super("setmainlobby", "scb.setmainlobby", 0, true);
+  }
+  
+  public void onCommand(CommandSender cs, String[] strings)
+  {
+    ArenaManager.setMainLobby(((Player)cs).getLocation());
+    cs.sendMessage(Lang.MAIN_LOBBY_SET.getString(true));
+  }
+}
