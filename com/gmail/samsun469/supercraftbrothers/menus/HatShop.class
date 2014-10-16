@@ -1,0 +1,111 @@
+package com.gmail.samsun469.supercraftbrothers.menus;
+
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager;
+import com.gmail.samsun469.supercraftbrothers.managers.StatsManager;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+
+public class HatShop
+{
+  public HatShopIM hatshop;
+  public Player p = null;
+  
+  public HatShop(SuperCraftBrothers scb, Player p)
+  {
+    this.hatshop = new HatShopIM("§2Hat Shop", 54, scb);
+    this.p = p;
+  }
+  
+  public String[] descs = new String[53];
+  public static int[] prices = { 50, 50, 50, 50, 150, 75, 100, 50, 100 };
+  public static ItemStack[] items = {
+    new ItemStack(Material.SKULL_ITEM, 1, 0), 
+    new ItemStack(Material.SKULL_ITEM, 1, 1), 
+    new ItemStack(Material.SKULL_ITEM, 1, 2), 
+    new ItemStack(Material.SKULL_ITEM, 1, 4), 
+    new ItemStack(Material.COMMAND, 1), 
+    new ItemStack(Material.TNT, 1), 
+    new ItemStack(Material.MOB_SPAWNER, 1), 
+    new ItemStack(Material.GLASS, 1), 
+    new ItemStack(Material.CACTUS, 1) };
+  public static String[] classes = {
+    "Skeleton Hat", 
+    "WitherSkeleton Hat", 
+    "Zombie Hat", 
+    "Creeper Hat", 
+    "Commander Hat", 
+    "TNT Hat", 
+    "Spawner Hat", 
+    "Spaceman Hat", 
+    "Cactus Hat" };
+  
+  public void openMenu()
+  {
+    setupShop(this.p);
+    this.hatshop.setOption(53, new ItemStack(Material.PAPER, 1), "Remove your hat", new String[] { "Click me to remove your hat" });
+    for (int i = 0; i < 9; i++) {
+      this.hatshop.setOption(i, items[i], classes[i], new String[] { this.descs[i] });
+    }
+    this.hatshop.open(this.p);
+  }
+  
+  public void setupShop(Player p)
+  {
+    for (int i = 0; i < classes.length; i++) {
+      if (StatsManager.getPlayerHat(p.getName(), classes[i])) {
+        this.descs[i] = "§aPurchased! Click me to use";
+      } else {
+        this.descs[i] = ("§6Price: §a" + prices[i] + " gems");
+      }
+    }
+  }
+  
+  public boolean canBuyHat(Player p, String c, int g)
+  {
+    if (StatsManager.getPlayerGems(p.getName()) >= g) {
+      return true;
+    }
+    p.sendMessage(ChatColor.RED + "You do not have enough Gems to unlock this hat");
+    return false;
+  }
+  
+  public void buyHat(Player p, String c, int g)
+  {
+    StatsManager.addPlayerHat(p.getName(), c);
+    StatsManager.setPlayerGems(p.getName(), -g, 1, 0);
+    ScoreboardManager.addPlayer(p);
+    p.sendMessage(ChatColor.GREEN + "You have just bought the " + c);
+  }
+  
+  public void setHat(String p, String h, int i)
+  {
+    Bukkit.getPlayer(p).getInventory().setHelmet(items[i]);
+    Bukkit.getPlayer(p).sendMessage(ChatColor.GREEN + "You are now wearing the " + h);
+  }
+  
+  public void onOptionClick(String c, int s)
+  {
+    if (s == 53)
+    {
+      this.p.getInventory().setHelmet(null);
+      return;
+    }
+    if (this.p.hasPermission("scb.hat." + c.toLowerCase().split(" ")[0])) {
+      setHat(this.p.getName(), c, s);
+    } else if (!StatsManager.getPlayerHat(this.p.getName(), c))
+    {
+      if (canBuyHat(this.p, c, prices[s])) {
+        buyHat(this.p, c, prices[s]);
+      }
+    }
+    else {
+      setHat(this.p.getName(), c, s);
+    }
+    HatShopIM.removeFromList(this.p);
+  }
+}
