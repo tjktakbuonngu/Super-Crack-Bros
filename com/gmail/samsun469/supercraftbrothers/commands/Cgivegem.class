@@ -1,0 +1,29 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.managers.StatsManager;
+import org.bukkit.command.CommandSender;
+
+public class Cgivegem
+  extends ICommand
+{
+  public Cgivegem()
+  {
+    super("givegem", "scb.givegem", 2, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] strings)
+  {
+    int g = 0;
+    try
+    {
+      g = Integer.parseInt(strings[1]);
+    }
+    catch (NumberFormatException e)
+    {
+      cs.sendMessage(Lang.INVALID_NUMBER.getString(true).replace("%n", strings[1]));
+    }
+    StatsManager.setPlayerGems(strings[0], g, 1, 0);
+    cs.sendMessage(Lang.GEMS_UPDATED.getString(true).replace("%p", strings[0]));
+  }
+}
