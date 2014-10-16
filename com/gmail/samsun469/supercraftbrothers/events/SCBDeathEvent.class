@@ -1,0 +1,66 @@
+package com.gmail.samsun469.supercraftbrothers.events;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+
+public class SCBDeathEvent
+  extends Event
+{
+  private static HandlerList handlers = new HandlerList();
+  private SCBPlayer killed;
+  private SCBPlayer killer = null;
+  private SCBGame game;
+  private String deathmessage;
+  
+  public SCBDeathEvent(SCBPlayer killed, SCBPlayer killer, SCBGame game, String deathmessage)
+  {
+    this.killed = killed;
+    this.killer = killer;
+    this.game = game;
+    this.deathmessage = deathmessage;
+  }
+  
+  public SCBDeathEvent(SCBPlayer killed, SCBGame game, String dm)
+  {
+    this.killed = killed;
+    this.game = game;
+    this.deathmessage = dm;
+  }
+  
+  public HandlerList getHandlers()
+  {
+    return handlers;
+  }
+  
+  public static HandlerList getHandlerList()
+  {
+    return handlers;
+  }
+  
+  public SCBPlayer getKilled()
+  {
+    return this.killed;
+  }
+  
+  public SCBPlayer getKiller()
+  {
+    return this.killer;
+  }
+  
+  public SCBGame getGame()
+  {
+    return this.game;
+  }
+  
+  public String getDeathMessage()
+  {
+    return this.deathmessage;
+  }
+  
+  public boolean hasKiller()
+  {
+    return this.killer != null;
+  }
+}
