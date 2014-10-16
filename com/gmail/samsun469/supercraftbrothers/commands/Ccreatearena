@@ -1,0 +1,27 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import org.bukkit.command.CommandSender;
+
+public class Ccreatearena
+  extends ICommand
+{
+  public Ccreatearena()
+  {
+    super("createarena", "scb.createarena", 1, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] strings)
+  {
+    if (ArenaManager.getGame(strings[0]) != null)
+    {
+      cs.sendMessage(Lang.MAP_EXISTS_NOT_MADE.getString(true).replace("%m", strings[0]));
+    }
+    else
+    {
+      ArenaManager.createGame(strings[0]);
+      cs.sendMessage(Lang.MAP_CREATED.getString(true).replace("%m", strings[0]));
+    }
+  }
+}
