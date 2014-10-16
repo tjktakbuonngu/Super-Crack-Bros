@@ -1,0 +1,55 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import java.io.File;
+import java.util.HashMap;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+
+public class ColorManager
+{
+  private static FileConfiguration cFile = null;
+  private static HashMap<String, ChatColor> colors = new HashMap();
+  
+  public ColorManager(SuperCraftBrothers plugin)
+  {
+    File file = new File(plugin.getDataFolder(), "colors.yml");
+    cFile = YamlConfiguration.loadConfiguration(file);
+    load();
+  }
+  
+  private static void load()
+  {
+    for (String s : cFile.getKeys(false)) {
+      if (cFile.getString(s).contains("&")) {
+        colors.put(s, ChatColor.getByChar(cFile.getString(s).replace("&", "")));
+      } else {
+        colors.put(s, ChatColor.getByChar(cFile.getString(s)));
+      }
+    }
+  }
+  
+  public static String getName(String name)
+  {
+    return colors.get(name) + name;
+  }
+  
+  public static void clearInventory(Player player)
+  {
+    player.getInventory().clear();
+    player.getInventory().setHelmet(new ItemStack(Material.AIR));
+    player.getInventory().setChestplate(new ItemStack(Material.AIR));
+    player.getInventory().setLeggings(new ItemStack(Material.AIR));
+    player.getInventory().setBoots(new ItemStack(Material.AIR));
+    player.setItemOnCursor(new ItemStack(Material.AIR));
+    for (PotionEffect effect : player.getActivePotionEffects()) {
+      player.removePotionEffect(effect.getType());
+    }
+  }
+}
