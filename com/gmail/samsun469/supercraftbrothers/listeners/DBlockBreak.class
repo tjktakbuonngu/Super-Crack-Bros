@@ -1,0 +1,58 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+
+public class DBlockBreak
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void BlockBreak(BlockBreakEvent event)
+  {
+    if (ArenaManager.getMainLobby() == null)
+    {
+      Bukkit.getLogger().severe("[SCB] You have not set a main lobby yet!");
+      return;
+    }
+    Player player = event.getPlayer();
+    if (WorldChecker.mainLobbyGame(player)) {
+      if (player.hasPermission("scb.bypass.blockbreakevent")) {
+        event.setCancelled(false);
+      } else {
+        event.setCancelled(true);
+      }
+    }
+  }
+  
+  @EventHandler(priority=EventPriority.HIGH)
+  public void SignBreakEvent(BlockBreakEvent e)
+  {
+    if (ArenaManager.getMainLobby() == null)
+    {
+      Bukkit.getLogger().severe("[SCB] You have not set a main lobby yet!");
+      return;
+    }
+    if (((e.getBlock().getState() instanceof Sign)) && (e.getPlayer().hasPermission("scb.deletearena")))
+    {
+      Sign s = (Sign)e.getBlock().getState();
+      if ((s.getLine(0).equals(ChatColor.RED + "Lobby")) || 
+        (s.getLine(0).equals(ChatColor.BLUE + "Disabled")))
+      {
+        String mapname = s.getLine(1);
+        if (mapname != null) {
+          ArenaManager.deleteGame(mapname);
+        }
+      }
+    }
+  }
+}
