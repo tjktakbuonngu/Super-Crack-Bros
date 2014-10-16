@@ -1,0 +1,66 @@
+package com.gmail.samsun469.supercraftbrothers.classes;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+public class wither
+{
+  public boolean apply(SCBPlayer player)
+  {
+    ItemStack h = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
+    ItemStack c = new ItemStack(Material.LEATHER_CHESTPLATE);
+    ItemStack l = new ItemStack(Material.LEATHER_LEGGINGS);
+    ItemStack b = new ItemStack(Material.LEATHER_BOOTS);
+    
+    LeatherArmorMeta cam = (LeatherArmorMeta)c.getItemMeta();
+    LeatherArmorMeta lam = (LeatherArmorMeta)l.getItemMeta();
+    LeatherArmorMeta bam = (LeatherArmorMeta)b.getItemMeta();
+    
+    cam.setColor(Color.BLACK);
+    lam.setColor(Color.BLACK);
+    bam.setColor(Color.BLACK);
+    c.setItemMeta(cam);
+    l.setItemMeta(lam);
+    b.setItemMeta(bam);
+    
+
+    b.addUnsafeEnchantment(Enchantment.PROTECTION_FALL, 10);
+    b.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+    
+    player.getPlayer().getInventory().setHelmet(h);
+    player.getPlayer().getInventory().setChestplate(c);
+    player.getPlayer().getInventory().setLeggings(l);
+    player.getPlayer().getInventory().setBoots(b);
+    
+
+
+    ItemStack bow = new ItemStack(Material.BOW, 1);
+    ItemStack star = new ItemStack(Material.NETHER_STAR, 1);
+    ItemStack arrow = new ItemStack(Material.ARROW, 1);
+    ItemStack potion = new ItemStack(Material.POTION, 64, (short)16384);
+    
+    PotionMeta meta = (PotionMeta)potion.getItemMeta();
+    meta.addCustomEffect(new PotionEffect(PotionEffectType.WITHER, 200, 1), true);
+    potion.setItemMeta(meta);
+    
+
+    bow.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
+    bow.addUnsafeEnchantment(Enchantment.ARROW_KNOCKBACK, 1);
+    star.addUnsafeEnchantment(Enchantment.KNOCKBACK, 2);
+    
+    player.getPlayer().getInventory().addItem(new ItemStack[] { bow });
+    player.getPlayer().getInventory().addItem(new ItemStack[] { star });
+    player.getPlayer().getInventory().addItem(new ItemStack[] { arrow });
+    player.getPlayer().getInventory().addItem(new ItemStack[] { potion });
+    return true;
+  }
+}
