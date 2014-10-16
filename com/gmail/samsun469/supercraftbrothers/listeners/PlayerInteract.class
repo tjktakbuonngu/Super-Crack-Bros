@@ -1,0 +1,606 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SCBRank;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.ConfigManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import com.gmail.samsun469.supercraftbrothers.menus.ClassMenu;
+import com.gmail.samsun469.supercraftbrothers.menus.GemClassMenu;
+import com.gmail.samsun469.supercraftbrothers.menus.GemClassShop;
+import com.gmail.samsun469.supercraftbrothers.menus.HatShop;
+import com.gmail.samsun469.supercraftbrothers.menus.VIPClassMenu;
+import com.gmail.samsun469.supercraftbrothers.throwable.ThrowItem;
+import com.gmail.samsun469.supercraftbrothers.throwable.ThrowReason;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import java.util.HashMap;
+import java.util.Random;
+import java.util.logging.Logger;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.SmallFireball;
+import org.bukkit.entity.ThrownPotion;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.material.SpawnEgg;
+import org.bukkit.potion.Potion;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
+import org.bukkit.util.Vector;
+
+public class PlayerInteract
+  implements Listener
+{
+  public static HashMap<String, Integer> witchJump = new HashMap();
+  public static HashMap<String, GemClassMenu> gcmmenus = new HashMap();
+  public static HashMap<String, VIPClassMenu> vipmenus = new HashMap();
+  public static HashMap<String, GemClassShop> gcsmenus = new HashMap();
+  public static HashMap<String, HatShop> hsmenus = new HashMap();
+  public SuperCraftBrothers plugin = SuperCraftBrothers.getInstance();
+  public Random random = new Random();
+  
+  @EventHandler(priority=EventPriority.HIGHEST)
+  public void onPlayerInteract(PlayerInteractEvent e)
+  {
+    Player p = e.getPlayer();
+    if ((!RankManager.getPlayerRank(p.getName()).getCanDoubleJump()) && (ConfigManager.doubleJump) && (ConfigManager.doubleJumpLobby)) {
+      if ((p.getLocation().getWorld().getName().equalsIgnoreCase(ArenaManager.getMainLobby().getWorld().getName())) && (PlayerManager.getCraftBrother(p) == null))
+      {
+        p.setFlying(false);
+        p.setAllowFlight(false);
+      }
+    }
+    if (WorldChecker.mainLobby(p))
+    {
+      if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+        if (e.getClickedBlock().getType().equals(Material.WALL_SIGN))
+        {
+          Sign s = (Sign)e.getClickedBlock().getState();
+          ClickSign(p, s);
+        }
+      }
+      if ((e.getAction().equals(Action.RIGHT_CLICK_AIR)) || (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)))
+      {
+        ItemStack i = e.getItem();
+        if ((i != null) && (i.getItemMeta() != null) && (i.getItemMeta().getDisplayName() != null)) {
+          GemShop(p, i.getItemMeta().getDisplayName());
+        }
+      }
+    }
+    if (WorldChecker.game(p)) {
+      if ((e.hasItem()) && ((e.getAction().equals(Action.RIGHT_CLICK_AIR)) || (e.getAction().equals(Action.RIGHT_CLICK_BLOCK))))
+      {
+        if ((e.getItem().getData() instanceof SpawnEgg)) {
+          Pokeballs(e);
+        }
+        if (e.getItem().getType().equals(Material.EYE_OF_ENDER)) {
+          e.setCancelled(true);
+        }
+        if (e.getItem().getType().equals(Material.BONE)) {
+          Dweller(e);
+        }
+        if (e.getItem().getType().equals(Material.WHEAT)) {
+          Witch(e);
+        }
+        if (e.getItem().getType().equals(Material.BAKED_POTATO)) {
+          Villager(e);
+        }
+        if (e.getItem().getType().equals(Material.RED_ROSE)) {
+          Butterbro(e);
+        }
+        if (e.getItem().getType().equals(Material.YELLOW_FLOWER)) {
+          Ocelot(e);
+        }
+        if (e.getItem().getType().equals(Material.GRASS)) {
+          Notch(e);
+        }
+        if (e.getItem().getType().equals(Material.WOOL)) {
+          Jeb(e);
+        }
+        if ((e.getItem().getType().equals(Material.EMPTY_MAP)) || (e.getItem().getType().equals(Material.MAP))) {
+          Mollstam(e);
+        }
+        if (e.getItem().getType().equals(Material.TNT)) {
+          TNT(e);
+        }
+        if (e.getItem().getType().equals(Material.DIODE)) {
+          SethblingDiode(e);
+        }
+        if (e.getItem().getType().equals(Material.REDSTONE_COMPARATOR)) {
+          SethblingComparator(e);
+        }
+        if (e.getItem().getType().equals(Material.REDSTONE)) {
+          SethblingRedstone(e);
+        }
+      }
+    }
+  }
+  
+  public void ClickSign(Player p, Sign s)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(p);
+    if (s.getLine(0).equalsIgnoreCase(Lang.SIGN_INLOBBY_1.getString(false)))
+    {
+      String mapName = ChatColor.stripColor(s.getLine(1));
+      SCBGame game = ArenaManager.getGame(mapName);
+      if (game != null)
+      {
+        if (bro == null) {
+          ArenaManager.getGame(mapName).joinLobby(p);
+        } else {
+          this.plugin.getLogger().severe(bro.getPlayer().getName() + " is already in a game!");
+        }
+      }
+      else {
+        this.plugin.getLogger().severe("The game " + mapName + " doesn't exist!");
+      }
+    }
+    if (s.getLine(0).equalsIgnoreCase(Lang.SIGN_INGAME_1.getString(false))) {
+      p.sendMessage(ChatColor.RED + "This game is in progress! Try joining a game that has not started yet.");
+    }
+    if (s.getLine(0).equalsIgnoreCase("Click To Go")) {
+      if ((bro != null) && (bro.isInLobby())) {
+        bro.getCurrentGame().leaveLobby(p, false);
+      }
+    }
+    if (s.getLine(1).equalsIgnoreCase(ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "SPECTATE")) {
+      if ((RankManager.getPlayerRank(p.getName()).getCanSpectate()) && (bro != null) && (bro.isInLobby()) && (bro.getCurrentGame().isInGame())) {
+        bro.getCurrentGame().spectate(p);
+      }
+    }
+    if (s.getLine(1).equalsIgnoreCase(ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "CHARACTER")) {
+      if ((bro != null) && (bro.getCurrentGame() != null)) {
+        ClassMenu.openMenu(p);
+      }
+    }
+    if (s.getLine(1).equalsIgnoreCase(ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "GEM")) {
+      if ((bro != null) && (bro.getCurrentGame() != null)) {
+        if (gcmmenus.get(p.getName()) != null)
+        {
+          GemClassMenu gm = (GemClassMenu)gcmmenus.get(p.getName());
+          gm.openMenu();
+        }
+        else
+        {
+          GemClassMenu gm = new GemClassMenu(this.plugin, p);
+          gcmmenus.put(p.getName(), gm);
+          gm.openMenu();
+        }
+      }
+    }
+    if (s.getLine(1).equalsIgnoreCase(ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "VIP")) {
+      if ((bro != null) && (bro.getCurrentGame() != null)) {
+        if (vipmenus.get(p.getName()) != null)
+        {
+          VIPClassMenu vm = (VIPClassMenu)vipmenus.get(p.getName());
+          vm.openMenu();
+        }
+        else
+        {
+          VIPClassMenu vm = new VIPClassMenu(this.plugin, p);
+          vipmenus.put(p.getName(), vm);
+          vm.openMenu();
+        }
+      }
+    }
+  }
+  
+  public void GemShop(Player p, String s)
+  {
+    if (s.equalsIgnoreCase(ChatColor.GREEN + "Character Gem Shop " + ChatColor.GRAY + "(Click to Open)")) {
+      if (gcsmenus.get(p.getName()) != null)
+      {
+        GemClassShop gs = (GemClassShop)gcsmenus.get(p.getName());
+        gs.openMenu();
+      }
+      else
+      {
+        GemClassShop gs = new GemClassShop(this.plugin, p);
+        gcsmenus.put(p.getName(), gs);
+        gs.openMenu();
+      }
+    }
+    if (s.equalsIgnoreCase(ChatColor.GREEN + "Hat Shop " + ChatColor.GRAY + "(Click to Open)")) {
+      if (hsmenus.get(p.getName()) != null)
+      {
+        HatShop hs = (HatShop)hsmenus.get(p.getName());
+        hs.openMenu();
+      }
+      else
+      {
+        HatShop hs = new HatShop(this.plugin, p);
+        hsmenus.put(p.getName(), hs);
+        hs.openMenu();
+      }
+    }
+  }
+  
+  public void Dweller(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("Dweller")))
+    {
+      ItemStack i = new ItemStack(Material.BONE);
+      ThrowReason a = ThrowReason.DWELLER;
+      Player p = e.getPlayer();
+      Location l = e.getPlayer().getEyeLocation();
+      Vector v = e.getPlayer().getLocation().getDirection().multiply(2.5D);
+      new ThrowItem(this.plugin, i, a, p, l, v, true, true);
+      e.getPlayer().getItemInHand().setType(Material.WOOD_SWORD);
+      e.getPlayer().getItemInHand().removeEnchantment(Enchantment.DAMAGE_ALL);
+      e.getPlayer().getItemInHand().removeEnchantment(Enchantment.KNOCKBACK);
+    }
+  }
+  
+  public void TNT(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("TNT")))
+    {
+      ItemStack i = new ItemStack(Material.TNT);
+      ThrowReason a = ThrowReason.TNT;
+      Player p = e.getPlayer();
+      Location l = e.getPlayer().getEyeLocation();
+      Vector v = e.getPlayer().getLocation().getDirection().multiply(2.5D);
+      new ThrowItem(this.plugin, i, a, p, l, v, true, true);
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().remove(e.getItem());
+      }
+    }
+  }
+  
+  public void Witch(PlayerInteractEvent e)
+  {
+    Player p = e.getPlayer();
+    SCBPlayer bro = PlayerManager.getCraftBrother(p);
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equals("Witch"))) {
+      if (!witchJump.containsKey(p.getName()))
+      {
+        witchJump.put(p.getName(), Integer.valueOf(1));
+        p.setLevel(1);
+        p.setVelocity(new Vector(p.getVelocity().getX(), 1.0D, p.getVelocity().getZ()));
+      }
+      else if (((Integer)witchJump.get(p.getName())).intValue() < 4)
+      {
+        if (p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR)
+        {
+          witchJump.remove(p.getName());
+          witchJump.put(p.getName(), Integer.valueOf(0));
+        }
+        p.setVelocity(new Vector(p.getVelocity().getX(), 1.0D, p.getVelocity().getZ()));
+        int jump = ((Integer)witchJump.get(p.getName())).intValue() + 1;
+        witchJump.put(p.getName(), Integer.valueOf(jump));
+        p.setLevel(jump);
+      }
+      else if (p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType() != Material.AIR)
+      {
+        witchJump.remove(p.getName());
+        witchJump.put(p.getName(), Integer.valueOf(0));
+        p.setVelocity(new Vector(p.getVelocity().getX(), 1.0D, p.getVelocity().getZ()));
+        int jump = ((Integer)witchJump.get(p.getName())).intValue() + 1;
+        witchJump.put(p.getName(), Integer.valueOf(jump));
+        p.setLevel(jump);
+      }
+    }
+  }
+  
+  public void Villager(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("villager")))
+    {
+      e.setCancelled(true);
+      e.getPlayer().getInventory().clear();
+      Potion potion = new Potion(PotionType.SLOWNESS, 2).splash();
+      ItemStack itemStack = new ItemStack(Material.POTION);
+      potion.apply(itemStack);
+      PotionMeta meta = (PotionMeta)itemStack.getItemMeta();
+      meta.addCustomEffect(new PotionEffect(PotionEffectType.SLOW, 200, 2), true);
+      itemStack.setItemMeta(meta);
+      ThrownPotion thrownPotion = (ThrownPotion)e.getPlayer().launchProjectile(ThrownPotion.class);
+      thrownPotion.setItem(itemStack);
+    }
+  }
+  
+  public void Butterbro(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("butterbro")))
+    {
+      e.setCancelled(true);
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().clear();
+      }
+      e.getPlayer().launchProjectile(SmallFireball.class);
+    }
+  }
+  
+  public void Ocelot(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("ocelot")))
+    {
+      e.setCancelled(true);
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().clear();
+      }
+      e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100, 2), true);
+    }
+  }
+  
+  public void Notch(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("notch")))
+    {
+      e.setCancelled(true);
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().clear();
+      }
+      int i = 0;
+      SCBGame game = bro.getCurrentGame();
+      for (Entity entity : bro.getPlayer().getNearbyEntities(200.0D, 200.0D, 200.0D)) {
+        if ((entity instanceof Player)) {
+          if ((PlayerManager.getCraftBrother((Player)entity) != null) && (PlayerManager.getCraftBrother((Player)entity).getCurrentGame().equals(game))) {
+            if (i < 2)
+            {
+              ((Player)entity).teleport(e.getPlayer());
+              i++;
+            }
+            else
+            {
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  public void Jeb(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("jeb")))
+    {
+      e.setCancelled(true);
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().clear();
+      }
+      SCBGame game = bro.getCurrentGame();
+      for (Entity entity : bro.getPlayer().getNearbyEntities(200.0D, 200.0D, 200.0D)) {
+        if ((entity instanceof Player)) {
+          if ((PlayerManager.getCraftBrother((Player)entity) != null) && (PlayerManager.getCraftBrother((Player)entity).getCurrentGame().equals(game)))
+          {
+            Player p = (Player)entity;
+            float yaw = p.getLocation().getYaw();
+            String str;
+            switch ((str = getDirection(Float.valueOf(yaw))).hashCode())
+            {
+            case 2152477: 
+              if (str.equals("East")) {}
+              break;
+            case 2692559: 
+              if (str.equals("West")) {}
+              break;
+            case 75454693: 
+              if (str.equals("North")) {
+                break;
+              }
+              break;
+            case 80075181: 
+              if (!str.equals("South"))
+              {
+                continue;p.setVelocity(new Vector(p.getVelocity().getX(), 0.8D, 3.0D));
+                continue;
+                
+                p.setVelocity(new Vector(-3.0D, 0.8D, p.getVelocity().getZ()));
+              }
+              else
+              {
+                p.setVelocity(new Vector(p.getVelocity().getX(), 0.8D, -3.0D));
+                continue;
+                
+                p.setVelocity(new Vector(3.0D, 0.8D, p.getVelocity().getZ()));
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  public void Mollstam(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("mollstam")))
+    {
+      int i = this.random.nextInt(10) + 1;
+      if ((i > 0) && (i < 4)) {
+        i = 1;
+      }
+      if ((i > 3) && (i < 7)) {
+        i = 2;
+      }
+      if ((i > 6) && (i < 10)) {
+        i = 3;
+      }
+      switch (i)
+      {
+      case 1: 
+        if (e.getPlayer().getHealth() < 13.0D) {
+          e.getPlayer().setHealth(e.getPlayer().getHealth() + 7.0D);
+        } else {
+          e.getPlayer().setHealth(20.0D);
+        }
+        e.getPlayer().sendMessage("§aThe power of Mollstam heals you...");
+        break;
+      case 2: 
+        e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 200, 3));
+        e.getPlayer().sendMessage("§aThe power of Mollstam regenerates you...");
+        break;
+      case 3: 
+        if (e.getPlayer().getNearbyEntities(200.0D, 200.0D, 200.0D) == null) {
+          e.getItem().setAmount(e.getItem().getAmount() + 1);
+        }
+        for (Entity entity : e.getPlayer().getNearbyEntities(200.0D, 200.0D, 200.0D)) {
+          if ((entity instanceof Player))
+          {
+            Player victim = (Player)entity;
+            SCBPlayer brother = PlayerManager.getCraftBrother(victim);
+            if (!brother.getCurrentGame().equals(bro.getCurrentGame())) {
+              break;
+            }
+            if ((!victim.equals(e.getPlayer())) && (victim.getHealth() > 7.0D))
+            {
+              victim.setHealth(victim.getHealth() - 7.0D); break;
+            }
+            victim.setHealth(0.0D);
+            
+            break;
+          }
+        }
+        e.getPlayer().sendMessage("§aThe power of Mollstam has weakened your enemies...");
+        break;
+      case 10: 
+        bro.setLivesLeft(bro.getLivesLeft() + 1);
+        bro.getCurrentGame().arenaStats();
+        e.getPlayer().sendMessage("§aThe power of Mollstam has given you an extra life...");
+      }
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().remove(e.getItem());
+      }
+    }
+  }
+  
+  public void Pokeballs(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if (bro != null)
+    {
+      e.setCancelled(true);
+      int amount = e.getPlayer().getItemInHand().getAmount();
+      ItemStack i = e.getItem();
+      i.setAmount(1);
+      ThrowReason a = ThrowReason.SPAWNEGG;
+      Player p = e.getPlayer();
+      Location l = e.getPlayer().getEyeLocation();
+      Vector v = e.getPlayer().getEyeLocation().getDirection().multiply(2.5D);
+      new ThrowItem(this.plugin, i, a, p, l, v, true, true);
+      if (amount > 1) {
+        e.getPlayer().getItemInHand().setAmount(amount - 1);
+      } else {
+        e.getPlayer().getInventory().remove(e.getItem());
+      }
+    }
+  }
+  
+  public void SethblingDiode(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("Sethbling")))
+    {
+      ItemStack i = new ItemStack(Material.DIODE);
+      ThrowReason a = ThrowReason.SETHDIODE;
+      Player p = e.getPlayer();
+      Location l = e.getPlayer().getEyeLocation();
+      Vector v = e.getPlayer().getLocation().getDirection().multiply(2.5D);
+      new ThrowItem(this.plugin, i, a, p, l, v, true, true);
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().remove(e.getItem());
+      }
+    }
+  }
+  
+  public void SethblingComparator(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("Sethbling")))
+    {
+      ItemStack i = new ItemStack(Material.REDSTONE_COMPARATOR);
+      ThrowReason a = ThrowReason.SETHCOMPARATOR;
+      Player p = e.getPlayer();
+      Location l = e.getPlayer().getEyeLocation();
+      Vector v = e.getPlayer().getLocation().getDirection().multiply(2.5D);
+      new ThrowItem(this.plugin, i, a, p, l, v, true, true);
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().remove(e.getItem());
+      }
+    }
+  }
+  
+  public void SethblingRedstone(PlayerInteractEvent e)
+  {
+    SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+    if ((bro != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equalsIgnoreCase("Sethbling")))
+    {
+      ItemStack i = new ItemStack(Material.REDSTONE);
+      ThrowReason a = ThrowReason.SETHREDSTONE;
+      Player p = e.getPlayer();
+      Location l = e.getPlayer().getEyeLocation();
+      Vector v = e.getPlayer().getLocation().getDirection().multiply(2.5D);
+      
+      new ThrowItem(this.plugin, i, a, p, l, v, false, true);
+      if (e.getItem().getAmount() > 1) {
+        e.getItem().setAmount(e.getItem().getAmount() - 1);
+      } else {
+        e.getPlayer().getInventory().remove(e.getItem());
+      }
+    }
+  }
+  
+  public String getDirection(Float yaw)
+  {
+    yaw = Float.valueOf(yaw.floatValue() / 90.0F);
+    yaw = Float.valueOf(Math.round(yaw.floatValue()));
+    if ((yaw.floatValue() == -4.0F) || (yaw.floatValue() == 0.0F) || (yaw.floatValue() == 4.0F)) {
+      return "South";
+    }
+    if ((yaw.floatValue() == -1.0F) || (yaw.floatValue() == 3.0F)) {
+      return "East";
+    }
+    if ((yaw.floatValue() == -2.0F) || (yaw.floatValue() == 2.0F)) {
+      return "North";
+    }
+    if ((yaw.floatValue() == -3.0F) || (yaw.floatValue() == 1.0F)) {
+      return "West";
+    }
+    return "";
+  }
+}
