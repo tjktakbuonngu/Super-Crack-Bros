@@ -1,3 +1,5 @@
+package com.gmail.samsun469.supercraftbrothers;
+
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 
