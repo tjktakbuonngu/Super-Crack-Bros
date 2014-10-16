@@ -1,0 +1,46 @@
+package com.gmail.samsun469.supercraftbrothers.classes;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+
+public class cactus
+{
+  public boolean apply(SCBPlayer player)
+  {
+    ItemStack h = new ItemStack(Material.CACTUS);
+    ItemStack c = new ItemStack(Material.LEATHER_CHESTPLATE);
+    ItemStack l = new ItemStack(Material.LEATHER_LEGGINGS);
+    ItemStack b = new ItemStack(Material.LEATHER_BOOTS);
+    
+    LeatherArmorMeta cam = (LeatherArmorMeta)c.getItemMeta();
+    LeatherArmorMeta lam = (LeatherArmorMeta)l.getItemMeta();
+    LeatherArmorMeta bam = (LeatherArmorMeta)b.getItemMeta();
+    cam.setColor(Color.GREEN);
+    lam.setColor(Color.GREEN);
+    bam.setColor(Color.GREEN);
+    c.setItemMeta(cam);
+    l.setItemMeta(lam);
+    b.setItemMeta(bam);
+    b.addUnsafeEnchantment(Enchantment.PROTECTION_FALL, 10);
+    b.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+    b.addUnsafeEnchantment(Enchantment.THORNS, 2);
+    l.addUnsafeEnchantment(Enchantment.THORNS, 2);
+    c.addUnsafeEnchantment(Enchantment.THORNS, 2);
+    h.addUnsafeEnchantment(Enchantment.THORNS, 2);
+    player.getPlayer().getInventory().setHelmet(h);
+    player.getPlayer().getInventory().setChestplate(c);
+    player.getPlayer().getInventory().setLeggings(l);
+    player.getPlayer().getInventory().setBoots(b);
+    ItemStack i1 = new ItemStack(Material.WOOD_SWORD, 1);
+    i1.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+    i1.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
+    player.getPlayer().getInventory().addItem(new ItemStack[] { i1 });
+    return true;
+  }
+}
