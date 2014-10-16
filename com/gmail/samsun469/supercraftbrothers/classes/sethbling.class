@@ -1,0 +1,60 @@
+package com.gmail.samsun469.supercraftbrothers.classes;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+
+public class sethbling
+{
+  public boolean apply(SCBPlayer player)
+  {
+    ItemStack h = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
+    ItemStack c = new ItemStack(Material.LEATHER_CHESTPLATE);
+    ItemStack l = new ItemStack(Material.LEATHER_LEGGINGS);
+    ItemStack b = new ItemStack(Material.LEATHER_BOOTS);
+    
+    LeatherArmorMeta cam = (LeatherArmorMeta)c.getItemMeta();
+    LeatherArmorMeta lam = (LeatherArmorMeta)l.getItemMeta();
+    LeatherArmorMeta bam = (LeatherArmorMeta)b.getItemMeta();
+    SkullMeta hsm = (SkullMeta)h.getItemMeta();
+    
+    hsm.setOwner("SethBling");
+    cam.setColor(Color.RED);
+    lam.setColor(Color.RED);
+    bam.setColor(Color.RED);
+    c.setItemMeta(cam);
+    l.setItemMeta(lam);
+    b.setItemMeta(bam);
+    h.setItemMeta(hsm);
+    
+
+    b.addUnsafeEnchantment(Enchantment.PROTECTION_FALL, 10);
+    b.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+    
+    player.getPlayer().getInventory().setHelmet(h);
+    player.getPlayer().getInventory().setChestplate(c);
+    player.getPlayer().getInventory().setLeggings(l);
+    player.getPlayer().getInventory().setBoots(b);
+    
+
+
+    ItemStack i1 = new ItemStack(Material.REDSTONE, 10);
+    ItemStack i2 = new ItemStack(Material.DIODE, 5);
+    ItemStack i3 = new ItemStack(Material.REDSTONE_COMPARATOR, 5);
+    
+    i1.addUnsafeEnchantment(Enchantment.KNOCKBACK, 1);
+    i1.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+    
+    player.getPlayer().getInventory().addItem(new ItemStack[] { i1 });
+    player.getPlayer().getInventory().addItem(new ItemStack[] { i2 });
+    player.getPlayer().getInventory().addItem(new ItemStack[] { i3 });
+    
+    return true;
+  }
+}
