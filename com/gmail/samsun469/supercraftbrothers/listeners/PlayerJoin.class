@@ -1,0 +1,32 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.InventoryManager;
+import com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager;
+import com.gmail.samsun469.supercraftbrothers.managers.StatsManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+
+public class PlayerJoin
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void onPlayerJoin(PlayerJoinEvent event)
+  {
+    if ((StatsManager.createPlayerFile(event.getPlayer().getName())) && (StatsManager.getPlayerSpawning(event.getPlayer().getName())))
+    {
+      event.getPlayer().teleport(ArenaManager.getMainLobby());
+      StatsManager.setPlayerSpawning(event.getPlayer().getName(), false);
+    }
+    if (WorldChecker.mainLobbyGame(event.getPlayer()))
+    {
+      InventoryManager.giveItems(event.getPlayer());
+      ScoreboardManager.addPlayer(event.getPlayer());
+      event.getPlayer().setAllowFlight(true);
+    }
+  }
+}
