@@ -1,0 +1,65 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBMap;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.ItemStack;
+
+public class DBlockPlace
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void BlockPlace(BlockPlaceEvent event)
+  {
+    if (ArenaManager.getMainLobby() == null)
+    {
+      Bukkit.getLogger().severe("[SCB] You have not set a main lobby yet!");
+      return;
+    }
+    Player player = event.getPlayer();
+    SCBPlayer bro = PlayerManager.getCraftBrother(player);
+    String mainlobby = ArenaManager.getMainLobby().getWorld().getName();
+    if (bro == null)
+    {
+      if (player.hasPermission("scb.bypass.blockplaceevent")) {
+        return;
+      }
+      if (player.getWorld().getName().equalsIgnoreCase(mainlobby)) {
+        event.setCancelled(true);
+      }
+    }
+    else
+    {
+      String lobbyworld = bro.getCurrentGame().getMap().getLocation("lobby").getWorld().getName();
+      if (player.getWorld().getName().equalsIgnoreCase(lobbyworld))
+      {
+        if ((event.getBlock().getType() == Material.TNT) && (bro.getCurrentClass().equalsIgnoreCase("creeper")))
+        {
+          event.setCancelled(true);
+          event.getBlock().getWorld().spawn(event.getBlock().getLocation().add(0.5D, 0.25D, 0.5D), TNTPrimed.class);
+          ItemStack i = event.getPlayer().getItemInHand();
+          i.setAmount(i.getAmount() - 1);
+          event.getPlayer().setItemInHand(i);
+        }
+        if (player.hasPermission("scb.bypass.blockplaceevent")) {
+          return;
+        }
+        event.setCancelled(true);
+      }
+    }
+  }
+}
