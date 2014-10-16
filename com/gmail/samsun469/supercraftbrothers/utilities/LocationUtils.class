@@ -1,0 +1,38 @@
+package com.gmail.samsun469.supercraftbrothers.utilities;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Server;
+import org.bukkit.World;
+
+public class LocationUtils
+{
+  public static String locationToString(Location l)
+  {
+    if (l == null) {
+      return null;
+    }
+    String w = l.getWorld().getName();
+    double x = l.getX();
+    double y = l.getY();
+    double z = l.getZ();
+    float p = l.getPitch();
+    float ya = l.getYaw();
+    return w + "~" + x + "~" + y + "~" + z + "~" + p + "~" + ya;
+  }
+  
+  public static Location stringToLocation(String s)
+  {
+    if (s == null) {
+      return null;
+    }
+    String[] str = s.split("\\~");
+    World w = Bukkit.getServer().getWorld(str[0]);
+    double x = Double.parseDouble(str[1]);
+    double y = Double.parseDouble(str[2]);
+    double z = Double.parseDouble(str[3]);
+    float p = Float.parseFloat(str[4]);
+    float ya = Float.parseFloat(str[5]);
+    return new Location(w, x, y, z, ya, p);
+  }
+}
