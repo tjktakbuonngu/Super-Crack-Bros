@@ -1,0 +1,24 @@
+package com.gmail.samsun469.supercraftbrothers.throwable;
+
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+
+public class SethRedstone
+  implements EntityHitEvent
+{
+  public boolean onHitByEntity(Entity e, Item i)
+  {
+    double x = i.getLocation().getX();
+    double y = i.getLocation().getY();
+    double z = i.getLocation().getZ();
+    i.getWorld().createExplosion(x, y, z, 1.0F, false, false);
+    return true;
+  }
+  
+  public boolean onHitByBlock(Item item)
+  {
+    return false;
+  }
+}
