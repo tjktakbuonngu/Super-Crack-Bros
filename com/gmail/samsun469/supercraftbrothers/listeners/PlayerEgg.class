@@ -1,0 +1,34 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Egg;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerEggThrowEvent;
+
+public class PlayerEgg
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void ChickenEgg(PlayerEggThrowEvent e)
+  {
+    Egg egg = e.getEgg();
+    double x = egg.getLocation().getX();
+    double y = egg.getLocation().getY();
+    double z = egg.getLocation().getZ();
+    if (WorldChecker.game(e.getPlayer()))
+    {
+      SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+      if ((bro != null) && (bro.getCurrentGame() != null) && (bro.getCurrentClass() != null) && (bro.getCurrentClass().equals("Chicken")))
+      {
+        e.setHatching(false);
+        egg.getWorld().createExplosion(x, y, z, 1.0F, false, false);
+      }
+    }
+  }
+}
