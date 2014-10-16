@@ -1,0 +1,41 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBMap;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.weather.WeatherChangeEvent;
+
+public class DWeatherChange
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.MONITOR)
+  public void weatherChange(WeatherChangeEvent e)
+  {
+    if (e.getWorld().getName().equalsIgnoreCase(ArenaManager.getMainLobby().getWorld().getName()))
+    {
+      if (e.toWeatherState()) {
+        e.setCancelled(true);
+      }
+    }
+    else {
+      for (SCBGame a : ArenaManager.getAllGames()) {
+        if (e.getWorld().getName().equalsIgnoreCase(a.getMap().getLocation("lobby").getWorld().getName()))
+        {
+          if (e.toWeatherState()) {
+            e.setCancelled(true);
+          }
+        }
+        else if (e.getWorld().getName().equalsIgnoreCase(a.getMap().getLocation("spawn1").getWorld().getName())) {
+          if (e.toWeatherState()) {
+            e.setCancelled(true);
+          }
+        }
+      }
+    }
+  }
+}
