@@ -1,0 +1,100 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBMap;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer.respawn;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.InventoryManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager;
+import java.util.Random;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.scheduler.BukkitScheduler;
+
+public class PlayerRespawn
+  implements Listener
+{
+  private Random rand = new Random();
+  
+  @EventHandler(priority=EventPriority.MONITOR)
+  public void onPlayerRespawn(final PlayerRespawnEvent event)
+  {
+    if (PlayerManager.getCraftBrother(event.getPlayer()) != null)
+    {
+      final SCBPlayer bro = PlayerManager.getCraftBrother(event.getPlayer());
+      if (bro.getReason().equals(SCBPlayer.respawn.TOLOBBY))
+      {
+        event.setRespawnLocation(bro.getCurrentGame().getMap().getLocation("lobby"));
+        Bukkit.getScheduler().runTask(SuperCraftBrothers.getInstance(), new Runnable()
+        {
+          public void run()
+          {
+            PlayerManager.getCraftBrother(event.getPlayer()).setInLobby(true);
+            event.getPlayer().setAllowFlight(true);
+            event.getPlayer().setLastDamage(0.0D);
+            ScoreboardManager.addPlayer(event.getPlayer());
+          }
+        });
+      }
+      if (bro.getReason().equals(SCBPlayer.respawn.TOGAME))
+      {
+        bro.setRespawning(false);
+        if (bro.getLivesLeft() > 0)
+        {
+          Location resp;
+          Location resp;
+          Location resp;
+          Location resp;
+          switch (this.rand.nextInt(4))
+          {
+          case 0: 
+            resp = bro.getCurrentGame().getMap().getLocation("spawn1");
+            break;
+          case 1: 
+            resp = bro.getCurrentGame().getMap().getLocation("spawn2");
+            break;
+          case 2: 
+            resp = bro.getCurrentGame().getMap().getLocation("spawn3");
+            break;
+          case 3: 
+          default: 
+            resp = bro.getCurrentGame().getMap().getLocation("spawn4");
+          }
+          event.setRespawnLocation(resp);
+          event.getPlayer().sendMessage(ChatColor.RED + "You have " + bro.getLivesLeft() + (bro.getLivesLeft() == 1 ? " life" : " lives") + " remaining");
+          
+          Bukkit.getScheduler().runTask(SuperCraftBrothers.getInstance(), new Runnable()
+          {
+            public void run()
+            {
+              bro.getPlayer().setAllowFlight(true);
+              bro.getPlayer().setLastDamage(0.0D);
+              bro.heal();
+              bro.apply();
+              bro.getCurrentGame().arenaStats();
+            }
+          });
+        }
+      }
+      if (bro.getReason().equals(SCBPlayer.respawn.TOMAIN))
+      {
+        event.setRespawnLocation(ArenaManager.getMainLobby());
+        ScoreboardManager.addPlayer(event.getPlayer());
+      }
+    }
+    else if (event.getRespawnLocation().getWorld().getName().equals(ArenaManager.getMainLobby().getWorld().getName()))
+    {
+      InventoryManager.giveItems(event.getPlayer());
+    }
+  }
+}
