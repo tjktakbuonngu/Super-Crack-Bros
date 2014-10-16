@@ -1,0 +1,101 @@
+package com.gmail.samsun469.supercraftbrothers;
+
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.ConfigManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.scheduler.BukkitScheduler;
+
+public class Schedulers
+{
+  private static BlockFace[] faces = { BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST };
+  
+  public Schedulers(SuperCraftBrothers plugin)
+  {
+    Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable()
+    {
+      public void run()
+      {
+        Schedulers.update();
+        Schedulers.checkPlayers();
+      }
+    }, 0L, 10L);
+  }
+  
+  public static void update()
+  {
+    for (SCBGame game : ) {
+      if (game.getMap().getLocation("sign") != null)
+      {
+        if ((!(game.getMap().getLocation("sign").getBlock().getState() instanceof org.bukkit.block.Sign)) && (ConfigManager.autoFixSigns))
+        {
+          Block b = game.getMap().getLocation("sign").getBlock();
+          b.setType(Material.WALL_SIGN);
+          org.bukkit.block.Sign s = (org.bukkit.block.Sign)b.getState();
+          org.bukkit.material.Sign matSign = new org.bukkit.material.Sign(Material.WALL_SIGN);
+          for (BlockFace face : faces) {
+            if ((game.getMap().getLocation("sign").getBlock().getRelative(face).getType() != Material.AIR) && (game.getMap().getLocation("sign").getBlock().getRelative(face).getType() != Material.WALL_SIGN))
+            {
+              matSign.setFacingDirection(face.getOppositeFace());
+              break;
+            }
+          }
+          s.setData(matSign);
+          s.update();
+        }
+        if ((game.getMap().getLocation("sign").getBlock().getState() instanceof org.bukkit.block.Sign))
+        {
+          org.bukkit.block.Sign s = (org.bukkit.block.Sign)game.getMap().getLocation("sign").getBlock().getState();
+          if (game.isInGame())
+          {
+            if (game.getAlive() == 0) {
+              game.stopGame();
+            }
+            s.setLine(0, Lang.SIGN_INGAME_1.getString(false));
+            s.setLine(1, Lang.SIGN_INGAME_2.getString(false).replace("%n", game.getName()));
+            s.setLine(2, Lang.SIGN_INGAME_3.getString(false));
+            s.setLine(3, Lang.SIGN_INGAME_4.getString(false).replace("%a", Integer.toString(game.getAlive())).replace("%d", Integer.toString(game.getDead())));
+          }
+          if (game.isInLobby())
+          {
+            s.setLine(0, Lang.SIGN_INLOBBY_1.getString(false));
+            s.setLine(1, Lang.SIGN_INLOBBY_2.getString(false).replace("%n", game.getName()));
+            s.setLine(2, Lang.SIGN_INLOBBY_3.getString(false).replace("%p", Integer.toString(game.getAllPlayers())));
+            s.setLine(3, Lang.SIGN_INLOBBY_4.getString(false).replace("%i", Integer.toString(game.getI())));
+          }
+          s.update();
+        }
+      }
+    }
+  }
+  
+  public static void checkPlayers()
+  {
+    for (Iterator localIterator1 = ArenaManager.getAllGames().iterator(); localIterator1.hasNext(); ???.hasNext())
+    {
+      SCBGame game = (SCBGame)localIterator1.next();
+      for (String a : game.getHashMap(0).keySet()) {
+        if (game.getHashMap(0).get(a) == null)
+        {
+          game.getHashMap(0).remove(a);
+          PlayerManager.removeCraftBrother(a);
+        }
+      }
+      ??? = game.getHashMap(1).keySet().iterator(); continue;String a = (String)???.next();
+      if (game.getHashMap(1).get(a) == null)
+      {
+        game.getHashMap(1).remove(a);
+        PlayerManager.removeCraftBrother(a);
+      }
+    }
+  }
+}
