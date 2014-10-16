@@ -1,0 +1,132 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBMap;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.SignChangeEvent;
+
+public class SignChange
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void onSignChange(SignChangeEvent event)
+  {
+    Player player = event.getPlayer();
+    if (event.getLine(0).equalsIgnoreCase("[SCB]"))
+    {
+      player = event.getPlayer();
+      if (player.hasPermission("scb.create"))
+      {
+        if (event.getLine(2).equalsIgnoreCase(""))
+        {
+          String map = event.getLine(1);
+          if (ArenaManager.getGame(map) == null) {
+            return;
+          }
+          SCBMap m = ArenaManager.getGame(map).getMap();
+          m.setLocation("sign", event.getBlock().getLocation());
+          player.sendMessage(ChatColor.GREEN + "Successfully created HUB sign for the map " + m.getGame().getName() + ".");
+        }
+      }
+      else {
+        player.sendMessage(ChatColor.RED + "[SCB] You do not have permission to do that");
+      }
+    }
+    if (event.getLine(0).equalsIgnoreCase("[LOBBY]"))
+    {
+      player = event.getPlayer();
+      if (player.hasPermission("scb.lobby"))
+      {
+        if (event.getLine(2).equalsIgnoreCase(""))
+        {
+          event.setLine(0, "Click to Go");
+          event.setLine(1, ChatColor.BOLD + "Back to lobby");
+          event.setLine(2, "");
+          event.setLine(3, "");
+          player.sendMessage(ChatColor.GREEN + "Successfully created LOBBY sign.");
+        }
+      }
+      else {
+        player.sendMessage(ChatColor.RED + "[SCB] You do not have permission to do that");
+      }
+    }
+    if (event.getLine(0).equalsIgnoreCase("[CLASS]"))
+    {
+      player = event.getPlayer();
+      if (player.hasPermission("scb.classnormal"))
+      {
+        if (event.getLine(2).equalsIgnoreCase(""))
+        {
+          event.setLine(0, "");
+          event.setLine(1, ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "CHARACTER");
+          event.setLine(2, "");
+          event.setLine(3, "");
+          player.sendMessage(ChatColor.GREEN + "Successfully created CLASS sign.");
+        }
+      }
+      else {
+        player.sendMessage(ChatColor.RED + "[SCB] You do not have permission to do that");
+      }
+    }
+    if (event.getLine(0).equalsIgnoreCase("[GEMCLASS]"))
+    {
+      player = event.getPlayer();
+      if (player.hasPermission("scb.classgem"))
+      {
+        if (event.getLine(2).equalsIgnoreCase(""))
+        {
+          event.setLine(0, "");
+          event.setLine(1, ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "GEM");
+          event.setLine(2, ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "CHARACTER");
+          event.setLine(3, "");
+          player.sendMessage(ChatColor.GREEN + "Successfully created GEM CLASS sign.");
+        }
+      }
+      else {
+        player.sendMessage(ChatColor.RED + "[SCB] You do not have permission to do that");
+      }
+    }
+    if (event.getLine(0).equalsIgnoreCase("[VIPCLASS]"))
+    {
+      player = event.getPlayer();
+      if (player.hasPermission("scb.classvip"))
+      {
+        if (event.getLine(2).equalsIgnoreCase(""))
+        {
+          event.setLine(0, "");
+          event.setLine(1, ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "VIP");
+          event.setLine(2, ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "CHARACTER");
+          event.setLine(3, "");
+          player.sendMessage(ChatColor.GREEN + "Successfully created VIP CLASS sign.");
+        }
+      }
+      else {
+        player.sendMessage(ChatColor.RED + "[SCB] You do not have permission to do that");
+      }
+    }
+    if (event.getLine(0).equalsIgnoreCase("[SPEC]"))
+    {
+      player = event.getPlayer();
+      if (player.hasPermission("scb.spectate"))
+      {
+        if (event.getLine(2).equalsIgnoreCase(""))
+        {
+          event.setLine(0, "");
+          event.setLine(1, ChatColor.BLACK + ChatColor.BOLD + ChatColor.UNDERLINE + "SPECTATE");
+          event.setLine(2, ChatColor.GREEN + ChatColor.UNDERLINE + "VIP Only");
+          event.setLine(3, "");
+          player.sendMessage(ChatColor.GREEN + "Successfully created SPECTATION sign.");
+        }
+      }
+      else {
+        player.sendMessage(ChatColor.RED + "[SCB] You do not have permission to do that");
+      }
+    }
+  }
+}
