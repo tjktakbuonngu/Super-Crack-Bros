@@ -1,0 +1,11 @@
+package com.gmail.samsun469.supercraftbrothers.throwable;
+
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+
+public abstract interface EntityHitEvent
+{
+  public abstract boolean onHitByEntity(Entity paramEntity, Item paramItem);
+  
+  public abstract boolean onHitByBlock(Item paramItem);
+}
