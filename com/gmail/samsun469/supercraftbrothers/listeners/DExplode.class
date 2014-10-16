@@ -1,0 +1,34 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBMap;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityExplodeEvent;
+
+public class DExplode
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH, ignoreCancelled=true)
+  public void onEntityExplode(EntityExplodeEvent event)
+  {
+    for (SCBGame game : )
+    {
+      String lobby = game.getMap().getLocation("lobby").getWorld().getName();
+      String spawn = game.getMap().getLocation("spawn1").getWorld().getName();
+      if (event.getLocation().getWorld().getName().equalsIgnoreCase(lobby)) {
+        event.setCancelled(true);
+      }
+      if (event.getLocation().getWorld().getName().equalsIgnoreCase(spawn)) {
+        event.setCancelled(true);
+      }
+    }
+    if (event.getLocation().getWorld().getName().equalsIgnoreCase(ArenaManager.getMainLobby().getWorld().getName())) {
+      event.setCancelled(true);
+    }
+  }
+}
