@@ -1,0 +1,41 @@
+package com.gmail.samsun469.supercraftbrothers.throwable;
+
+import java.util.HashMap;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
+
+public class Spawnegg
+  implements EntityHitEvent
+{
+  public boolean onHitByEntity(Entity e, Item item)
+  {
+    if ((e instanceof LivingEntity))
+    {
+      ItemStack i = item.getItemStack();
+      if (ThrowItem.getEggs().containsKey(i))
+      {
+        EntityType entity1 = (EntityType)ThrowItem.getEggs().get(i);
+        item.getWorld().spawnEntity(e.getLocation(), entity1);
+        return true;
+      }
+      return false;
+    }
+    return false;
+  }
+  
+  public boolean onHitByBlock(Item item)
+  {
+    if (ThrowItem.getEggs().containsKey(item))
+    {
+      EntityType entity1 = (EntityType)ThrowItem.getEggs().get(item);
+      ThrowItem.getEggs().remove(item);
+      item.getWorld().spawnEntity(item.getLocation(), entity1);
+      return true;
+    }
+    return false;
+  }
+}
