@@ -1,0 +1,79 @@
+package com.gmail.samsun469.supercraftbrothers.menus;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+public class ClassMenu
+{
+  public static ClassMenuIM menucharacter;
+  public static String[] classes = {
+    "Blaze", 
+    "Cactus", 
+    "Creeper", 
+    "Enderman", 
+    "Skeleton", 
+    "Silverfish", 
+    "Spider", 
+    "Squid", 
+    "Wither", 
+    "Zombie", 
+    "ZombiePigman", 
+    "Dweller", 
+    "Pig", 
+    "Villager", 
+    "Jeb" };
+  public static ItemStack[] items = {
+    new ItemStack(Material.BLAZE_ROD), 
+    new ItemStack(Material.CACTUS), 
+    new ItemStack(Material.SKULL_ITEM, 1, 4), 
+    new ItemStack(Material.ENDER_PEARL), 
+    new ItemStack(Material.SKULL_ITEM), 
+    new ItemStack(Material.FISHING_ROD), 
+    new ItemStack(Material.WEB), 
+    new ItemStack(Material.INK_SACK), 
+    new ItemStack(Material.SKULL_ITEM, 1, 1), 
+    new ItemStack(Material.SKULL_ITEM, 1, 2), 
+    new ItemStack(Material.GOLD_CHESTPLATE), 
+    new ItemStack(Material.BONE), 
+    new ItemStack(Material.PORK), 
+    new ItemStack(Material.WOOD_STEP), 
+    new ItemStack(Material.WOOL) };
+  public static String[][] descs = {
+    { "Equipped with an", "incinndary rod and bow" }, 
+    { "Will cause damage", "to melee attacker" }, 
+    { "Equipped with some TNT and", "lots of small bombs" }, 
+    { "Able to teleport by", "throwing enderpearls" }, 
+    { "Equipped with extra", "knockback bow" }, 
+    { "Equipped with five", "silverfish spawn eggs" }, 
+    { "Fast and 30% of", "poisoning on", "melee attacks" }, 
+    { "With 25% chance of causing", "blindness and/or slowness", "on melee attacks" }, 
+    { "Equipped with an Wither Skull Bow and", "Wither potions" }, 
+    { "Equipped with a", "shovel that", "causes extra damage" }, 
+    { "Equipped with two", "Zombie Pigman eggs" }, 
+    { "Able to throw it's melee weapon", "to cause an explosion" }, 
+    { "Will get extra", "speed when hit" }, 
+    { "Throws rotten potatoes that cause", "slowness to nearby players" }, 
+    { "Push player very", "far away" } };
+  
+  public ClassMenu(SuperCraftBrothers scb)
+  {
+    menucharacter = new ClassMenuIM("§l§nIncluded Characters", 27, scb);
+    for (int i = 0; i < classes.length; i++) {
+      menucharacter.setOption(i, items[i], classes[i], descs[i]);
+    }
+  }
+  
+  public static void openMenu(Player p)
+  {
+    menucharacter.open(p);
+  }
+  
+  public static void onOptionClick(Player p, int s, String c)
+  {
+    PlayerManager.getCraftBrother(p).setCurrentClass(c);
+  }
+}
