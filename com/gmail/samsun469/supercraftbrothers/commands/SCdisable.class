@@ -1,0 +1,29 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import org.bukkit.command.CommandSender;
+
+public class SCdisable
+  extends ISubCommand
+{
+  public SCdisable()
+  {
+    super("disable", "scb.disable", 1, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    SCBGame game = ArenaManager.getGame(args[0]);
+    if (game != null)
+    {
+      game.disableArena();
+      cs.sendMessage(Lang.MAP_DISABLED.getString(true));
+    }
+    else
+    {
+      cs.sendMessage(Lang.MAP_NOT_FOUND.getString(true));
+    }
+  }
+}
