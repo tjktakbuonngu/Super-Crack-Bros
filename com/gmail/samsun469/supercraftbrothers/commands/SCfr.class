@@ -1,0 +1,35 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import net.minecraft.server.v1_6_R3.EntityPlayer;
+import net.minecraft.server.v1_6_R3.Packet205ClientCommand;
+import net.minecraft.server.v1_6_R3.PlayerConnection;
+import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_6_R3.entity.CraftPlayer;
+
+public class SCfr
+  extends ISubCommand
+{
+  public SCfr()
+  {
+    super("fr", "scb.forcerespawn", 1, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    if (Bukkit.getPlayer(args[0]) == null)
+    {
+      cs.sendMessage(Lang.PLAYER_NOT_FOUND.getString(true));
+    }
+    else
+    {
+      Packet205ClientCommand packet = new Packet205ClientCommand();
+      CraftPlayer cp = (CraftPlayer)Bukkit.getPlayer(args[0]);
+      packet.a = 1;
+      if (cp != null) {
+        cp.getHandle().playerConnection.a(packet);
+      }
+    }
+  }
+}
