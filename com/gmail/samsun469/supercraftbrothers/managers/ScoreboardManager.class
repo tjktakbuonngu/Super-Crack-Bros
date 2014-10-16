@@ -1,0 +1,31 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SCBRank;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+
+public class ScoreboardManager
+{
+  public static void addPlayer(Player player)
+  {
+    if ((ConfigManager.scoreboard) && (player != null))
+    {
+      String sp = player.getName();
+      Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+      String srank = RankManager.getPlayerRank(player.getName()).getName();
+      int gems = StatsManager.getPlayerGems(player.getName());
+      Objective objective = board.registerNewObjective("gems", "dummy");
+      objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+      objective.setDisplayName(sp + " (" + srank + ") ");
+      Score score = objective.getScore(Bukkit.getOfflinePlayer("Gems:"));
+      score.setScore(gems);
+      if ((player != null) && (player.getName() != null)) {
+        player.setScoreboard(board);
+      }
+    }
+  }
+}
