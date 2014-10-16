@@ -1,0 +1,32 @@
+name: SuperCrackBros
+main: com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers
+version: 1-ALPHA
+description: SCB
+author: Tjktakbuonngu
+softdepend: [Multiverse-Core, MultiWorld, Vault]
+commands:
+  scb:
+    description: The main command. Use /scb help for more info
+    usage: /scb
+  createarena:
+    description: Command to create an arena
+    usage: /createarena <map>
+  deletearena:
+    description: Command to delete an arena
+    usage: /deletearena <map>
+  setspawnloc:
+    description: Set a spawn location for a map
+    usage: /setspawnloc <map> <1|2|3|4>
+  setmainlobby:
+    description: Set the main lobby
+    usage: /setmainlobby
+  setlobbyspawn:
+    description: Set the lobby spawn for a map
+    usage: /setlobbyspawn <map>
+  givegem:
+    description: Give player gems
+    usage: /givegem <player> <gems>
+    aliases: givegems
+  setrank:
+    description: Set a player's rank
+    usage: /setrank <player> <rank>
