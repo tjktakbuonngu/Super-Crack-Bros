@@ -1,0 +1,36 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerPickupItemEvent;
+
+public class DPlayerPickupItem
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void PlayerPickupItemListener(PlayerPickupItemEvent event)
+  {
+    if (ArenaManager.getMainLobby() == null)
+    {
+      Bukkit.getLogger().severe("[SCB] You have not set a main lobby yet!");
+      return;
+    }
+    Player player = event.getPlayer();
+    if (WorldChecker.mainLobbyGame(player))
+    {
+      if (WorldChecker.game(player)) {
+        return;
+      }
+      if (player.hasPermission("scb.bypass.playerpickupitemevent")) {
+        return;
+      }
+      event.setCancelled(true);
+    }
+  }
+}
