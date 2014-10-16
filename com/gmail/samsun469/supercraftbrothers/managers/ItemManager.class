@@ -1,0 +1,102 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+public class ItemManager
+{
+  private static HashMap<Integer, ItemStack> items = new HashMap();
+  private static SuperCraftBrothers scb;
+  
+  public ItemManager(SuperCraftBrothers plugin)
+  {
+    scb = plugin;
+    load();
+  }
+  
+  public static void load()
+  {
+    items.clear();
+    int i = 0;
+    File itemfolder = new File(scb.getDataFolder() + File.separator + "items" + File.separator);
+    List<String> il = scb.getConfig().getStringList("enabled-items");
+    if (!itemfolder.exists()) {
+      itemfolder.mkdir();
+    }
+    if (itemfolder.listFiles() != null) {
+      for (File f : itemfolder.listFiles())
+      {
+        String fname = f.getName().replace(".yml", "");
+        if (il.contains(fname))
+        {
+          FileConfiguration c = YamlConfiguration.loadConfiguration(f);
+          String id = c.getString("id");
+          String[] iteminfo = new String[2];
+          List<String> oldlore = c.getStringList("lore");
+          List<String> lore = new ArrayList();
+          String name = c.getString("name");
+          ItemStack item = null;
+          ItemMeta meta = null;
+          Map<Enchantment, Integer> enchantments = new HashMap();
+          if (id.contains(","))
+          {
+            iteminfo = id.split(",");
+            item = new ItemStack(Material.matchMaterial(iteminfo[0]), c.getInt("amount"), (short)Integer.parseInt(iteminfo[1]));
+          }
+          else
+          {
+            iteminfo[0] = id;
+            item = new ItemStack(Material.matchMaterial(c.getString("id")));
+          }
+          meta = item.getItemMeta();
+          for (String s : oldlore) {
+            if (s != null) {
+              lore.add(ChatColor.translateAlternateColorCodes('&', s));
+            }
+          }
+          if ((name != null) && (name.contains("&"))) {
+            name = ChatColor.translateAlternateColorCodes('&', name);
+          }
+          meta.setLore(lore);
+          meta.setDisplayName(name);
+          item.setItemMeta(meta);
+          for (String e : c.getStringList("enchantments")) {
+            enchantments.put(Enchantment.getByName(e.split(",")[0]), Integer.valueOf(Integer.parseInt(e.split(",")[1])));
+          }
+          item.addUnsafeEnchantments(enchantments);
+          items.put(Integer.valueOf(i), item);
+          if (ConfigManager.debug) {
+            scb.getLogger().info("Item " + fname + " was successfully loaded!");
+          }
+          i++;
+        }
+        else if (ConfigManager.debug)
+        {
+          scb.getLogger().info("Item " + fname + " NOT loaded because it was not in the enabled items list");
+        }
+      }
+    }
+  }
+  
+  public static HashMap<Integer, ItemStack> getAllItems()
+  {
+    return items;
+  }
+  
+  public static ItemStack getItem(int i)
+  {
+    return (ItemStack)items.get(Integer.valueOf(i));
+  }
+}
