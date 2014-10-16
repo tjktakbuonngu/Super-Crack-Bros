@@ -1,0 +1,62 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBGame;
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.events.SCBDeathEvent;
+import net.minecraft.server.v1_6_R3.EntityPlayer;
+import net.minecraft.server.v1_6_R3.Packet205ClientCommand;
+import net.minecraft.server.v1_6_R3.PlayerConnection;
+import org.bukkit.Server;
+import org.bukkit.craftbukkit.v1_6_R3.entity.CraftPlayer;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitScheduler;
+
+public class SCBDeath
+  implements Listener
+{
+  private SuperCraftBrothers scb;
+  
+  public SCBDeath()
+  {
+    this.scb = SuperCraftBrothers.getInstance();
+  }
+  
+  @EventHandler(priority=EventPriority.HIGH)
+  public void onSCBDeath(final SCBDeathEvent event)
+  {
+    SCBGame game = event.getGame();
+    SCBPlayer killed = event.getKilled();
+    String deathmessage = event.getDeathMessage();
+    killed.setLivesLeft(killed.getLivesLeft() - 1);
+    killed.setRespawning(true);
+    if (event.hasKiller())
+    {
+      SCBPlayer killer = event.getKiller();
+      if ((killer != null) && (killed != null)) {
+        killer.setKills(killer.getKills() + 1);
+      }
+    }
+    if (game != null) {
+      game.broadcast(deathmessage);
+    }
+    if (killed.getLivesLeft() <= 0) {
+      game.playerEliminated(killed);
+    }
+    this.scb.getServer().getScheduler().scheduleSyncDelayedTask(this.scb, new BukkitRunnable()
+    {
+      public void run()
+      {
+        Packet205ClientCommand packet = new Packet205ClientCommand();
+        CraftPlayer cp = (CraftPlayer)event.getKilled().getPlayer();
+        packet.a = 1;
+        if (cp != null) {
+          cp.getHandle().playerConnection.a(packet);
+        }
+      }
+    }, 10L);
+  }
+}
