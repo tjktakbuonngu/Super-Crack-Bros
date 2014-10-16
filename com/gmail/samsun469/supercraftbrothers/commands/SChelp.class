@@ -1,0 +1,33 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import org.bukkit.command.CommandSender;
+
+public class SChelp
+  extends ISubCommand
+{
+  public SChelp()
+  {
+    super("help", "", 0, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    cs.sendMessage("[§aSCB§r]");
+    cs.sendMessage("/createarena <arena> - Create an arena");
+    cs.sendMessage("/deletearena <arena> - Delete an arena");
+    cs.sendMessage("/setlobbyspawn <arena> - Set lobby spawn, not the main lobby");
+    cs.sendMessage("/setspawnloc <arena> <1|2|3|4> - Set a spawn point");
+    cs.sendMessage("/setmainlobby - Set the main lobby");
+    cs.sendMessage("/givegem <player> <gem> - Give players gems");
+    cs.sendMessage("/setrank <player> <rank> - Change a player's rank");
+    cs.sendMessage("---------------------------------------");
+    cs.sendMessage("/scb leave - Leave the arena");
+    cs.sendMessage("/scb start - Force start the arena");
+    cs.sendMessage("/scb stop - Force stop the arena");
+    cs.sendMessage("/scb fr <player> - Force respawn a player");
+    cs.sendMessage("/scb debug - Debug the plugin");
+    cs.sendMessage("/scb fix - Fix files");
+    cs.sendMessage("/scb reload - Reload the plugin");
+    cs.sendMessage("/scb tp <Arena> - Teleport to a lobby");
+  }
+}
