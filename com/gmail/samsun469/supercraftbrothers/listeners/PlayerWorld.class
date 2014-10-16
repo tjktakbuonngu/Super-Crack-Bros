@@ -1,0 +1,47 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SCBRank;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+
+public class PlayerWorld
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void PlayerWorldChange(PlayerChangedWorldEvent e)
+  {
+    if (!WorldChecker.mainLobbyGame(e.getPlayer()))
+    {
+      e.getPlayer().setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+      e.getPlayer().setAllowFlight(false);
+    }
+    else
+    {
+      SCBPlayer bro = PlayerManager.getCraftBrother(e.getPlayer());
+      if (bro == null)
+      {
+        if (RankManager.getPlayerRank(e.getPlayer().getName()).getCanDoubleJump()) {
+          e.getPlayer().setAllowFlight(true);
+        }
+      }
+      else if (bro.isInLobby())
+      {
+        if (RankManager.getPlayerRank(e.getPlayer().getName()).getCanDoubleJump()) {
+          e.getPlayer().setAllowFlight(true);
+        }
+      }
+      else {
+        e.getPlayer().setAllowFlight(true);
+      }
+      com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager.addPlayer(e.getPlayer());
+    }
+  }
+}
