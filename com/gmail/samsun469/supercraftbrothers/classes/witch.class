@@ -1,0 +1,60 @@
+package com.gmail.samsun469.supercraftbrothers.classes;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import java.util.ArrayList;
+import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.LeatherArmorMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+
+public class witch
+{
+  public boolean apply(SCBPlayer player)
+  {
+    ItemStack h = new ItemStack(Material.SKULL_ITEM, 1, (short)3);
+    ItemStack c = new ItemStack(Material.LEATHER_CHESTPLATE);
+    ItemStack l = new ItemStack(Material.LEATHER_LEGGINGS);
+    ItemStack b = new ItemStack(Material.LEATHER_BOOTS);
+    LeatherArmorMeta cam = (LeatherArmorMeta)c.getItemMeta();
+    LeatherArmorMeta lam = (LeatherArmorMeta)l.getItemMeta();
+    LeatherArmorMeta bam = (LeatherArmorMeta)b.getItemMeta();
+    SkullMeta hsm = (SkullMeta)h.getItemMeta();
+    hsm.setOwner("scrafbrothers4");
+    cam.setColor(Color.PURPLE);
+    lam.setColor(Color.PURPLE);
+    bam.setColor(Color.PURPLE);
+    c.setItemMeta(cam);
+    l.setItemMeta(lam);
+    b.setItemMeta(bam);
+    h.setItemMeta(hsm);
+    b.addUnsafeEnchantment(Enchantment.PROTECTION_FALL, 10);
+    b.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 4);
+    player.getPlayer().getInventory().setHelmet(h);
+    player.getPlayer().getInventory().setChestplate(c);
+    player.getPlayer().getInventory().setLeggings(l);
+    player.getPlayer().getInventory().setBoots(b);
+    ItemStack i1 = new ItemStack(Material.WHEAT, 1);
+    ItemStack i2 = new ItemStack(Material.POTION, 10, (short)16428);
+    ItemStack i3 = new ItemStack(Material.POTION, 3, (short)16388);
+    ItemStack i4 = new ItemStack(Material.POTION, 2, (short)16424);
+    ItemMeta im1 = i1.getItemMeta();
+    im1.setDisplayName(ChatColor.DARK_RED + "Magic Broom");
+    ArrayList<String> im1l = new ArrayList();
+    im1l.add("Use it to jump in the air");
+    im1l.add("up to four times in a row");
+    im1.setLore(im1l);
+    i1.setItemMeta(im1);
+    i1.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+    player.getPlayer().getInventory().addItem(new ItemStack[] { i1 });
+    player.getPlayer().getInventory().addItem(new ItemStack[] { i2 });
+    player.getPlayer().getInventory().addItem(new ItemStack[] { i3 });
+    player.getPlayer().getInventory().addItem(new ItemStack[] { i4 });
+    return true;
+  }
+}
