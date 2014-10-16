@@ -1,0 +1,484 @@
+package com.gmail.samsun469.supercraftbrothers;
+
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.managers.ColorManager;
+import com.gmail.samsun469.supercraftbrothers.managers.ConfigManager;
+import com.gmail.samsun469.supercraftbrothers.managers.InventoryManager;
+import com.gmail.samsun469.supercraftbrothers.managers.ItemManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import com.gmail.samsun469.supercraftbrothers.managers.StatsManager;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+import net.milkbowl.vault.economy.Economy;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Server;
+import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+
+public class SCBGame
+{
+  private String name;
+  private SCBMap map;
+  
+  public static enum Status
+  {
+    INGAME("ingame"),  INLOBBY("inlobby");
+    
+    private String status;
+    
+    private Status(String s)
+    {
+      this.status = s;
+    }
+    
+    public String getStatus()
+    {
+      return this.status;
+    }
+  }
+  
+  private int i = 30;
+  private int TaskId = 0;
+  private SuperCraftBrothers plugin;
+  private Status status = Status.INLOBBY;
+  private File file;
+  private HashMap<String, SCBPlayer> all = new HashMap();
+  private HashMap<String, SCBPlayer> ingame = new HashMap();
+  
+  public SCBGame(SuperCraftBrothers plugin, String name, File file)
+  {
+    this.name = name;
+    this.file = file;
+    this.map = new SCBMap(this);
+    this.map.load();
+    this.plugin = plugin;
+  }
+  
+  public String getName()
+  {
+    return this.name;
+  }
+  
+  public SCBMap getMap()
+  {
+    return this.map;
+  }
+  
+  public File getFile()
+  {
+    return this.file;
+  }
+  
+  public HashMap<String, SCBPlayer> getHashMap(int i)
+  {
+    switch (i)
+    {
+    case 0: 
+      return this.all;
+    case 1: 
+      return this.ingame;
+    }
+    return null;
+  }
+  
+  public void joinLobby(Player bro)
+  {
+    if ((this.all.containsKey(bro.getName())) || (this.ingame.containsKey(bro.getName()))) {
+      return;
+    }
+    if (getAllPlayers() > 3)
+    {
+      bro.sendMessage(Lang.LOBBYFULL.getString(false));
+      return;
+    }
+    PlayerManager.addCraftBrother(bro.getName());
+    SCBPlayer cBro = PlayerManager.getCraftBrother(bro.getName());
+    cBro.setReason(SCBPlayer.respawn.TOLOBBY);
+    cBro.setInLobby(true);
+    cBro.setCurrentGame(this);
+    this.all.put(bro.getName(), cBro);
+    bro.teleport(this.map.getLocation("lobby"));
+    InventoryManager.giveItems(bro);
+    com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager.addPlayer(bro);
+    bro.sendMessage(Lang.COUNTDOWNSTARTED.getString(false).replace("%map", getName()));
+    if (getAllPlayers() == 4) {
+      startLobbyCountdown();
+    }
+  }
+  
+  public void leaveLobby(Player bro, boolean fromEvent)
+  {
+    String name = bro.getName();
+    if (!this.all.containsKey(name)) {
+      return;
+    }
+    this.all.remove(name);
+    broadcast(Lang.PLAYER_LEFT_LOBBY.getString(false).replace("%p", name));
+    if (!fromEvent)
+    {
+      bro.getPlayer().setAllowFlight(true);
+      bro.teleport(ArenaManager.getMainLobby());
+      InventoryManager.giveItems(bro);
+      com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager.addPlayer(bro);
+      bro.sendMessage(Lang.SELF_LEFT_LOBBY.getString(false));
+    }
+    PlayerManager.removeCraftBrother(name);
+  }
+  
+  public void joinGame(Player bro)
+  {
+    this.ingame.put(bro.getName(), PlayerManager.getCraftBrother(bro));
+  }
+  
+  public void leaveGame(Player bro, boolean fromEvent)
+  {
+    String name = bro.getName();
+    if ((!this.ingame.containsKey(name)) || (!this.all.containsKey(name))) {
+      return;
+    }
+    this.ingame.remove(name);
+    this.all.remove(name);
+    broadcast(Lang.PLAYER_LEFT_GAME.getString(false).replace("%p", name));
+    SCBPlayer bro1 = PlayerManager.getCraftBrother(bro.getName());
+    if (!fromEvent) {
+      if (bro1.isRespawning())
+      {
+        bro1.setReason(SCBPlayer.respawn.TOMAIN);
+      }
+      else
+      {
+        bro.getPlayer().setAllowFlight(true);
+        bro.teleport(ArenaManager.getMainLobby());
+        com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager.addPlayer(bro);
+        InventoryManager.giveItems(bro);
+        bro.sendMessage(Lang.SELF_LEFT_GAME.getString(false));
+      }
+    }
+    PlayerManager.removeCraftBrother(name);
+    arenaStats();
+    checkWin();
+  }
+  
+  public void checkWin()
+  {
+    if (this.ingame.size() == 1) {
+      winGame((SCBPlayer)this.ingame.values().toArray()[0]);
+    }
+    if (this.ingame.size() == 0) {
+      stopGame();
+    }
+  }
+  
+  public void startGame()
+  {
+    if (isInLobby())
+    {
+      List<Location> spawns = Arrays.asList(new Location[] { this.map.getLocation("spawn1"), this.map.getLocation("spawn2"), this.map.getLocation("spawn3"), this.map.getLocation("spawn4") });
+      List<SCBPlayer> bros = new ArrayList(this.all.values());
+      for (int i = 0; i < bros.size(); i++) {
+        ((SCBPlayer)bros.get(i)).getPlayer().teleport((Location)spawns.get(i));
+      }
+      for (SCBPlayer bro : bros)
+      {
+        bro.apply();
+        bro.setInLobby(false);
+        joinGame(bro.getPlayer());
+        bro.getPlayer().setAllowFlight(true);
+        bro.setReason(SCBPlayer.respawn.TOGAME);
+        bro.heal();
+      }
+      this.status = Status.INGAME;
+      arenaStats();
+      startRandomDrops();
+    }
+  }
+  
+  public void spectate(Player bro)
+  {
+    Location sp1 = this.map.getLocation("spawn1");
+    Location spec = this.map.getLocation("spectation");
+    if (spec != null)
+    {
+      PlayerManager.getCraftBrother(bro).setSpectating(true);
+      bro.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 50000, 2));
+      bro.teleport(spec);
+    }
+    else
+    {
+      PlayerManager.getCraftBrother(bro).setSpectating(true);
+      bro.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 50000, 2));
+      bro.teleport(sp1);
+    }
+  }
+  
+  public void arenaStats()
+  {
+    Scoreboard board = Bukkit.getScoreboardManager().getNewScoreboard();
+    SCBPlayer[] cb = new SCBPlayer[this.ingame.size()];
+    cb = (SCBPlayer[])this.ingame.values().toArray(new SCBPlayer[0]);
+    Objective o = board.registerNewObjective("lives", "dummy");
+    o.setDisplaySlot(DisplaySlot.SIDEBAR);
+    o.setDisplayName(this.name);
+    
+    Score[] scores = new Score[cb.length];
+    for (int i = 0; i < cb.length; i++)
+    {
+      scores[i] = o.getScore(cb[i].getPlayer());
+      scores[i].setScore(cb[i].getLivesLeft());
+      cb[i].getPlayer().setScoreboard(board);
+    }
+  }
+  
+  public void stopGame()
+  {
+    List<SCBPlayer> bros = new ArrayList(this.all.values());
+    for (SCBPlayer bro : bros) {
+      if ((bro != null) && (bro.getPlayer() != null))
+      {
+        bro.getPlayer().sendMessage(Lang.GAME_STOPPED_ADMIN.getString(false));
+        bro.heal();
+        bro.getPlayer().setAllowFlight(false);
+        bro.getPlayer().teleport(ArenaManager.getMainLobby());
+        com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager.addPlayer(bro.getPlayer());
+        InventoryManager.giveItems(bro.getPlayer());
+        PlayerManager.removeCraftBrother(bro.getPlayer().getName());
+        com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager.addPlayer(bro.getPlayer());
+      }
+    }
+    if (this.TaskId > 0)
+    {
+      Bukkit.getServer().getScheduler().cancelTask(this.TaskId);
+      this.i = 30;
+    }
+    this.all.clear();
+    this.ingame.clear();
+    this.status = Status.INLOBBY;
+  }
+  
+  public void disableArena()
+  {
+    if (this.plugin.getConfig().isBoolean("map." + this.name + ".disabled"))
+    {
+      this.plugin.getConfig().set("map." + this.name + ".disabled", Boolean.valueOf(true));
+      this.plugin.saveConfig();
+    }
+  }
+  
+  public void enableArena()
+  {
+    if (this.plugin.getConfig().isBoolean("map." + this.name + ".disabled"))
+    {
+      this.plugin.getConfig().set("map." + this.name + ".disabled", Boolean.valueOf(false));
+      this.status = Status.INLOBBY;
+      this.plugin.saveConfig();
+    }
+  }
+  
+  public void winGame(SCBPlayer bro)
+  {
+    Player p = bro.getPlayer();
+    String s = p.getName();
+    Bukkit.broadcastMessage(Lang.GAME_PLAYER_WON.getString(false).replace("%p", s).replace("%m", getName()));
+    if ((SuperCraftBrothers.getInstance().vault) && (ConfigManager.vault))
+    {
+      SuperCraftBrothers.getEcon().depositPlayer(s, ConfigManager.cashOnWin);
+    }
+    else
+    {
+      StatsManager.setPlayerGems(s, ConfigManager.gemsOnWin, RankManager.getPlayerRank(s).getGemMultiplier(), RankManager.getPlayerRank(s).getBonusGems());
+      StatsManager.setPlayerWins(s, 1);
+      StatsManager.setPlayerKills(s, bro.getKills());
+      StatsManager.setPlayerDeaths(s, bro.getDeaths());
+    }
+    ColorManager.clearInventory(p);
+    bro.heal();
+    p.teleport(ArenaManager.getMainLobby());
+    InventoryManager.giveItems(p);
+    PlayerManager.removeCraftBrother(s);
+    for (SCBPlayer cb : this.all.values()) {
+      if (cb != null)
+      {
+        cb.getPlayer().teleport(ArenaManager.getMainLobby());
+        PlayerManager.removeCraftBrother(bro.getPlayer().getName());
+      }
+    }
+    for (SCBPlayer cb : this.ingame.values()) {
+      if (cb != null)
+      {
+        cb.getPlayer().teleport(ArenaManager.getMainLobby());
+        PlayerManager.removeCraftBrother(bro.getPlayer().getName());
+      }
+    }
+    this.all.clear();
+    this.ingame.clear();
+    this.status = Status.INLOBBY;
+    com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager.addPlayer(bro.getPlayer());
+  }
+  
+  public int getAllPlayers()
+  {
+    return this.all.size();
+  }
+  
+  public int getNumberIngame()
+  {
+    return this.ingame.size();
+  }
+  
+  public void broadcast(String message)
+  {
+    if (isInLobby()) {
+      for (SCBPlayer bro : this.all.values()) {
+        bro.getPlayer().sendMessage(message);
+      }
+    } else {
+      for (SCBPlayer bro : this.ingame.values()) {
+        bro.getPlayer().sendMessage(message);
+      }
+    }
+  }
+  
+  public boolean isInLobby()
+  {
+    return this.status.equals(Status.INLOBBY);
+  }
+  
+  public boolean isInGame()
+  {
+    return this.status.equals(Status.INGAME);
+  }
+  
+  public void setStatus(Status s)
+  {
+    this.status = s;
+  }
+  
+  public int getAlive()
+  {
+    return getNumberIngame();
+  }
+  
+  public int getDead()
+  {
+    return 4 - getNumberIngame();
+  }
+  
+  public int getI()
+  {
+    return this.i;
+  }
+  
+  public void playerEliminated(SCBPlayer killed)
+  {
+    if (this.ingame.containsKey(killed.getPlayer().getName()))
+    {
+      this.ingame.remove(killed.getPlayer().getName());
+      if (this.ingame.size() == 1)
+      {
+        killed.setReason(SCBPlayer.respawn.TOMAIN);
+        if ((SuperCraftBrothers.getInstance().vault) && (ConfigManager.vault)) {
+          SuperCraftBrothers.getEcon().depositPlayer(killed.getPlayer().getName(), ConfigManager.cashRunnerup);
+        } else {
+          StatsManager.setPlayerGems(killed.getPlayer().getName(), 1, RankManager.getPlayerRank(killed.getPlayer().getName()).getGemMultiplier(), 0);
+        }
+      }
+      else
+      {
+        killed.setReason(SCBPlayer.respawn.TOLOBBY);
+      }
+      this.all.remove(killed.getPlayer().getName());
+      broadcast(Lang.GAME_PLAYER_ELIMINATED.getString(false).replace("%p", killed.getPlayer().getName()));
+      StatsManager.setPlayerKills(killed.getPlayer().getName(), killed.getKills());
+      StatsManager.setPlayerDeaths(killed.getPlayer().getName(), killed.getDeaths());
+      com.gmail.samsun469.supercraftbrothers.managers.ScoreboardManager.addPlayer(killed.getPlayer());
+      arenaStats();
+      checkWin();
+      PlayerManager.removeCraftBrother(killed.getPlayer().getName());
+    }
+  }
+  
+  public void startLobbyCountdown()
+  {
+    if ((isInLobby()) && (this.i == 30))
+    {
+      BukkitRunnable br = new BukkitRunnable()
+      {
+        public void run()
+        {
+          SCBGame.this.TaskId = getTaskId();
+          if (SCBGame.this.i == 30)
+          {
+            SCBGame.this.broadcast(Lang.GAME_STARTING_IN.getString(false));
+            for (SCBPlayer bro : SCBGame.this.ingame.values()) {
+              bro.getPlayer().setLevel(SCBGame.this.i);
+            }
+            SCBGame.this.i -= 1;
+          }
+          else if (SCBGame.this.i > 0)
+          {
+            for (SCBPlayer bro : SCBGame.this.all.values()) {
+              bro.getPlayer().setLevel(SCBGame.this.i);
+            }
+            SCBGame.this.i -= 1;
+          }
+          else
+          {
+            SCBGame.this.startGame();
+            cancel();
+            SCBGame.this.TaskId = 0;
+            SCBGame.this.i = 30;
+            for (SCBPlayer bro : SCBGame.this.all.values()) {
+              bro.getPlayer().setLevel(0);
+            }
+          }
+        }
+      };
+      br.runTaskTimer(this.plugin, 0L, 20L);
+    }
+  }
+  
+  public void startRandomDrops()
+  {
+    if ((isInGame()) && (ItemManager.getAllItems().size() > 0))
+    {
+      final Random random = new Random();
+      BukkitRunnable br = new BukkitRunnable()
+      {
+        public void run()
+        {
+          if (SCBGame.this.isInLobby())
+          {
+            cancel();
+          }
+          else
+          {
+            int j = random.nextInt(10);
+            if (j == 5)
+            {
+              List<String> keysAsArray = new ArrayList(SCBGame.this.ingame.keySet());
+              SCBPlayer p = (SCBPlayer)SCBGame.this.ingame.get(keysAsArray.get(random.nextInt(SCBGame.this.ingame.size())));
+              p.getPlayer().getLocation().getWorld().dropItemNaturally(p.getPlayer().getLocation().add(0.0D, 7.0D, 0.0D), ItemManager.getItem(random.nextInt(ItemManager.getAllItems().size())));
+            }
+          }
+        }
+      };
+      br.runTaskTimer(this.plugin, 0L, ConfigManager.randomDropSeconds * 20L);
+    }
+  }
+}
