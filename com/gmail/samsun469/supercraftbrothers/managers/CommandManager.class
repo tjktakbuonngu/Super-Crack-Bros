@@ -1,0 +1,98 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.commands.Ccreatearena;
+import com.gmail.samsun469.supercraftbrothers.commands.Cdeletearena;
+import com.gmail.samsun469.supercraftbrothers.commands.Cgivegem;
+import com.gmail.samsun469.supercraftbrothers.commands.CommandListener;
+import com.gmail.samsun469.supercraftbrothers.commands.Cscb;
+import com.gmail.samsun469.supercraftbrothers.commands.Csetlobbyspawn;
+import com.gmail.samsun469.supercraftbrothers.commands.Csetmainlobby;
+import com.gmail.samsun469.supercraftbrothers.commands.Csetrank;
+import com.gmail.samsun469.supercraftbrothers.commands.Csetspawnloc;
+import com.gmail.samsun469.supercraftbrothers.commands.ICommand;
+import com.gmail.samsun469.supercraftbrothers.commands.ISubCommand;
+import com.gmail.samsun469.supercraftbrothers.commands.SCdebug;
+import com.gmail.samsun469.supercraftbrothers.commands.SCdisable;
+import com.gmail.samsun469.supercraftbrothers.commands.SCenable;
+import com.gmail.samsun469.supercraftbrothers.commands.SCfix;
+import com.gmail.samsun469.supercraftbrothers.commands.SCfr;
+import com.gmail.samsun469.supercraftbrothers.commands.SChelp;
+import com.gmail.samsun469.supercraftbrothers.commands.SCleave;
+import com.gmail.samsun469.supercraftbrothers.commands.SCreload;
+import com.gmail.samsun469.supercraftbrothers.commands.SCstart;
+import com.gmail.samsun469.supercraftbrothers.commands.SCstop;
+import com.gmail.samsun469.supercraftbrothers.commands.SCtp;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.file.FileConfiguration;
+
+public class CommandManager
+{
+  private static SuperCraftBrothers scb;
+  private static HashMap<Integer, ICommand> commands = new HashMap();
+  private static HashMap<Integer, ISubCommand> subcommands = new HashMap();
+  private static List<Integer> disabledc;
+  private static List<Integer> disabledsc;
+  
+  public CommandManager(SuperCraftBrothers plugin)
+  {
+    scb = plugin;
+    load();
+  }
+  
+  protected static void load()
+  {
+    commands.put(Integer.valueOf(1), new Ccreatearena());
+    commands.put(Integer.valueOf(2), new Csetrank());
+    commands.put(Integer.valueOf(3), new Cdeletearena());
+    commands.put(Integer.valueOf(4), new Cgivegem());
+    commands.put(Integer.valueOf(5), new Cscb());
+    commands.put(Integer.valueOf(6), new Csetlobbyspawn());
+    commands.put(Integer.valueOf(7), new Csetmainlobby());
+    commands.put(Integer.valueOf(8), new Csetspawnloc());
+    
+    disabledc = scb.getConfig().getIntegerList("commands");
+    for (int i = 1; i < commands.size() + 1; i++) {
+      if ((disabledc != null) || (disabledc.contains(Integer.valueOf(i))))
+      {
+        scb.getCommand(((ICommand)commands.get(Integer.valueOf(i))).getCommand()).setExecutor(new CommandListener());
+        if (ConfigManager.debug) {
+          scb.getLogger().info("Successfully registered command " + ((ICommand)commands.get(Integer.valueOf(i))).getCommand());
+        }
+      }
+    }
+    subcommands.put(Integer.valueOf(1), new SChelp());
+    subcommands.put(Integer.valueOf(2), new SCstart());
+    subcommands.put(Integer.valueOf(3), new SCdisable());
+    subcommands.put(Integer.valueOf(4), new SCenable());
+    subcommands.put(Integer.valueOf(5), new SCleave());
+    subcommands.put(Integer.valueOf(6), new SCreload());
+    subcommands.put(Integer.valueOf(7), new SCstop());
+    subcommands.put(Integer.valueOf(8), new SCtp());
+    subcommands.put(Integer.valueOf(9), new SCdebug());
+    subcommands.put(Integer.valueOf(10), new SCfr());
+    subcommands.put(Integer.valueOf(11), new SCfix());
+    
+    disabledsc = scb.getConfig().getIntegerList("subcommands");
+    for (int i = 1; i < subcommands.size() + 1; i++) {
+      if ((disabledsc == null) || (!disabledsc.contains(Integer.valueOf(i)))) {
+        subcommands.remove(Integer.valueOf(i));
+      } else if (ConfigManager.debug) {
+        scb.getLogger().info("Successfully registered subcommand " + ((ISubCommand)subcommands.get(Integer.valueOf(i))).getCommand());
+      }
+    }
+  }
+  
+  public static HashMap<Integer, ICommand> getCommands()
+  {
+    return commands;
+  }
+  
+  public static HashMap<Integer, ISubCommand> getSubCommands()
+  {
+    return subcommands;
+  }
+}
