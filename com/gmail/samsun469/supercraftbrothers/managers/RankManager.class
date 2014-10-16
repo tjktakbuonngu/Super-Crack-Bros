@@ -1,0 +1,152 @@
+package com.gmail.samsun469.supercraftbrothers.managers;
+
+import com.gmail.samsun469.supercraftbrothers.SCBRank;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.utilities.LocationUtils;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
+
+public class RankManager
+{
+  private static HashMap<String, SCBRank> ranks = new HashMap();
+  private static SuperCraftBrothers scb;
+  
+  public RankManager(SuperCraftBrothers plugin)
+  {
+    scb = plugin;
+    load();
+  }
+  
+  public static void load()
+  {
+    ranks.clear();
+    File rankfolder = new File(scb.getDataFolder() + File.separator + "ranks");
+    List<String> r = scb.getConfig().getStringList("enabled-ranks");
+    if (!rankfolder.exists()) {
+      rankfolder.mkdir();
+    }
+    if (rankfolder.listFiles() != null) {
+      for (File f : rankfolder.listFiles())
+      {
+        String fname = f.getName().replace(".yml", "");
+        if ((!r.isEmpty()) && (r.contains(fname)))
+        {
+          ranks.put(fname, new SCBRank(scb, fname, f));
+          if (ConfigManager.debug) {
+            scb.getLogger().info("Rank " + fname + " was successfully loaded!");
+          }
+        }
+        else if (ConfigManager.debug)
+        {
+          scb.getLogger().info("Rank " + fname + " NOT loaded because it was not in the enabled ranks list");
+        }
+      }
+    }
+  }
+  
+  public static void createRank(String name)
+  {
+    if (getRank(name) == null)
+    {
+      File file = new File(scb.getDataFolder() + File.separator + "ranks" + File.separator + name + ".yml");
+      try
+      {
+        file.createNewFile();
+      }
+      catch (IOException e)
+      {
+        e.printStackTrace();
+      }
+      ranks.put(name, new SCBRank(scb, name, file));
+      List<String> names = scb.getConfig().getStringList("enabled-ranks");
+      names.add(name);
+      scb.getConfig().set("enabled-ranks", names);
+      scb.saveConfig();
+    }
+  }
+  
+  public static boolean deleteRank(String name)
+  {
+    if (getRank(name) != null)
+    {
+      ranks.remove(name);
+      List<String> names = scb.getConfig().getStringList("enabled-ranks");
+      names.remove(name);
+      Location loc = LocationUtils.stringToLocation(scb.getConfig().getString("map." + name + ".lobby-sign"));
+      if (loc != null) {
+        loc.getBlock().setType(Material.AIR);
+      }
+      scb.getConfig().set("enabled-ranks", names);
+      scb.saveConfig();
+      return true;
+    }
+    return false;
+  }
+  
+  public static SCBRank getRank(String rank)
+  {
+    return (SCBRank)ranks.get(rank);
+  }
+  
+  public static void addRank(SCBRank rank)
+  {
+    if (rank == null) {
+      return;
+    }
+    if (!ranks.containsKey(rank.getName())) {
+      ranks.put(rank.getName(), rank);
+    }
+  }
+  
+  public static void removeRank(SCBRank rank)
+  {
+    if (rank == null) {
+      return;
+    }
+    removeRank(rank.getName());
+  }
+  
+  public static void removeRank(String rank)
+  {
+    if (rank == null) {
+      return;
+    }
+    if (ranks.containsKey(rank)) {
+      ranks.remove(rank);
+    }
+  }
+  
+  public static Collection<SCBRank> getAllrank()
+  {
+    return ranks.values();
+  }
+  
+  public static SCBRank getPlayerRank(String p)
+  {
+    return getRank(SuperCraftBrothers.getInstance().getPlayerConfig(p).getString("rank"));
+  }
+  
+  public static void setPlayerRank(String p, String argRank)
+  {
+    FileConfiguration c = SuperCraftBrothers.getInstance().getPlayerConfig(p);
+    c.set("rank", argRank);
+    try
+    {
+      c.save(SuperCraftBrothers.getInstance().getPlayerFile(p));
+      ScoreboardManager.addPlayer(Bukkit.getPlayer(p));
+    }
+    catch (IOException e)
+    {
+      e.printStackTrace();
+    }
+  }
+}
