@@ -1,0 +1,56 @@
+import java.io.File;
+import java.util.List;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+public class SCBRank
+{
+  private String name;
+  private FileConfiguration c;
+  private int bonusGems;
+  private int gemMultiplier;
+  private List<String> classes;
+  private boolean canDoubleJump;
+  private boolean canSpectate;
+  
+  public SCBRank(SuperCraftBrothers scb, String name, File f)
+  {
+    this.name = name;
+    this.c = YamlConfiguration.loadConfiguration(f);
+    this.bonusGems = this.c.getInt("bonus-gems");
+    this.gemMultiplier = this.c.getInt("gem-multiplier");
+    this.classes = this.c.getStringList("classes");
+    this.canDoubleJump = this.c.getBoolean("can-double-jump");
+    this.canSpectate = this.c.getBoolean("can-spectate");
+  }
+  
+  public String getName()
+  {
+    return this.name;
+  }
+  
+  public boolean getCanDoubleJump()
+  {
+    return this.canDoubleJump;
+  }
+  
+  public int getGemMultiplier()
+  {
+    return this.gemMultiplier;
+  }
+  
+  public int getBonusGems()
+  {
+    return this.bonusGems;
+  }
+  
+  public boolean getCanSpectate()
+  {
+    return this.canSpectate;
+  }
+  
+  public List<String> getClasses()
+  {
+    return this.classes;
+  }
+}
