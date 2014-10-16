@@ -1,0 +1,18 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import org.bukkit.command.CommandSender;
+
+public class SCreload
+  extends ISubCommand
+{
+  public SCreload()
+  {
+    super("reload", "scb.reload", 0, false);
+  }
+  
+  public void onCommand(CommandSender cs, String[] args)
+  {
+    SuperCraftBrothers.getInstance().reloadCfg();
+  }
+}
