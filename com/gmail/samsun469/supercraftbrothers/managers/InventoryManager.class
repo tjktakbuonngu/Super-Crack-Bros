@@ -121,7 +121,7 @@ public class InventoryManager
     ItemStack b = new ItemStack(Material.WRITTEN_BOOK);
     BookMeta bm = (BookMeta)b.getItemMeta();
     bm.setTitle(ChatColor.AQUA + "Player Stats");
-    bm.setAuthor("zombiekiller753");
+    bm.setAuthor("tjktakbuonngu");
     bm.setPages(pages);
     b.setItemMeta(bm);
     player.getInventory().addItem(new ItemStack[] { b });
@@ -138,8 +138,8 @@ public class InventoryManager
     }
     ItemStack b = new ItemStack(Material.WRITTEN_BOOK);
     BookMeta bm = (BookMeta)b.getItemMeta();
-    bm.setTitle("SuperCraftBrothers");
-    bm.setAuthor("zombiekiller753");
+    bm.setTitle("SuperCrackBros");
+    bm.setAuthor("tjktakbuonngu");
     bm.setPages(pages);
     b.setItemMeta(bm);
     p.getInventory().addItem(new ItemStack[] { b });
