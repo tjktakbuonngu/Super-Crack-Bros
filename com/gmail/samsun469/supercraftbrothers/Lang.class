@@ -1,0 +1,42 @@
+package com.gmail.samsun469.supercraftbrothers;
+
+import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+public enum Lang
+{
+  MAIN_LOBBY_SET("main-lobby-set", "Main lobby set"),  COUNTDOWNSTARTED("countdownstarted", "&aYou have joined &e%map&a. Choose your class by clicking one of the signs"),  LOBBYFULL("lobbyfull", "&cThis lobby is full! Try joining another lobby!"),  PLAYER_LEFT_LOBBY("player-left-lobby", "&c%p has left the lobby"),  SELF_LEFT_LOBBY("self-left-lobby", "&aYou have left the game and returned to the main lobby"),  PLAYER_LEFT_GAME("player-left-game", "&c%p has left the game"),  SELF_LEFT_GAME("self-left-game", "&cYou have left the game"),  COMMAND_PLAYER_ONLY("command-player-only", "This command is only usable by a player"),  COMMAND_NO_PERMISSION("command-no-permission", "&cYou have no permission to use this command"),  COMMAND_NOT_ENOUGH_ARGS("command-not-enough-args", "&cNot enough arguments supplied to this command"),  COMMAND_NOT_FOUND("command-not-found", "&cUnknown command. Type /scb help for commands"),  MAP_EXISTS_NOT_MADE("map.exists-not-made", "The map %m already exists! A new map will NOT be created"),  MAP_CREATED("map.created", "The map %m has been successfully created"),  MAP_NOT_FOUND("map.not-found", "The map cannot be found"),  MAP_DELETED("map.deleted", "The map has been deleted"),  MAP_SET_LOBBY("map.setlobby", "Set the lobby of %m"),  MAP_DISABLED("map.disabled", "Map disabled"),  MAP_ENABLED("map.enabled", "Map enabled"),  GEMS_UPDATED("gems-updated", "The player %p's gems have been updated"),  INVALID_NUMBER("invalid-number", "%n is not a number"),  NUMBER_NOT_1_4("number-not-1-4", "&n is not between 1 and 4"),  GAME_STARTING_IN("game.starting-in", "&aThe game will begin in &e30 seconds&a!"),  GAME_PLAYER_DIED("game.player-died", "%p has %l lives left"),  GAME_PLAYER_ELIMINATED("game.player-eliminated", "%p has lost!"),  GAME_PLAYER_WON("game.player-won", "%p &ahas just won on &e%m&a!"),  GAME_STOPPED_ADMIN("game.stopped-admin", "&cThis game has been stopped by an admin"),  GAME_STOPPED_ADMIN_MESSAGE("game.stopped-admin-message", "The game has been stopped"),  GAME_NOT_IN("game.not-in", "You are not in a game!"),  GAME_STARTED_ADMIN("game.started-admin", "The game has been started"),  RANK_UPDATED("rank.updated", "The player %p's rank has been updated"),  RANK_CREATED("rank.created", "Rank created successfully"),  SIGN_INGAME_1("sign.ingame.1", "&aIn Progress"),  SIGN_INGAME_2("sign.ingame.2", "%n"),  SIGN_INGAME_3("sign.ingame.3", "-- Players --"),  SIGN_INGAME_4("sign.ingame.4", "Alive-%a|Dead-%d"),  SIGN_INLOBBY_1("sign.inlobby.1", "&cLobby"),  SIGN_INLOBBY_2("sign.inlobby.2", "%n"),  SIGN_INLOBBY_3("sign.inlobby.3", "Players: %p/4"),  SIGN_INLOBBY_4("sign.inlobby.4", "%is"),  PLAYER_NOT_FOUND("player.not-found", "Player not found!");
+  
+  private String path;
+  private String def;
+  private static YamlConfiguration LANG;
+  
+  private Lang(String path, String start)
+  {
+    this.path = path;
+    this.def = start;
+  }
+  
+  public static void setFile(YamlConfiguration config)
+  {
+    LANG = config;
+  }
+  
+  public String getString(boolean prefix)
+  {
+    if (!prefix) {
+      return ChatColor.translateAlternateColorCodes('&', LANG.getString(this.path, this.def));
+    }
+    return ChatColor.translateAlternateColorCodes('&', "[&aSCB&r] " + LANG.getString(this.path, this.def));
+  }
+  
+  public String getDefault()
+  {
+    return this.def;
+  }
+  
+  public String getPath()
+  {
+    return this.path;
+  }
+}
