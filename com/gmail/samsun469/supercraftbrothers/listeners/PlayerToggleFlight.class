@@ -1,0 +1,80 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.SCBRank;
+import com.gmail.samsun469.supercraftbrothers.SuperCraftBrothers;
+import com.gmail.samsun469.supercraftbrothers.managers.ConfigManager;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.managers.RankManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+
+public class PlayerToggleFlight
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.MONITOR)
+  public void onFly(PlayerToggleFlightEvent event)
+  {
+    Player player = event.getPlayer();
+    if ((player.getGameMode() != GameMode.CREATIVE) && (event.isFlying()) && (ConfigManager.doubleJump)) {
+      if (WorldChecker.mainLobbyGame(player))
+      {
+        if ((PlayerManager.getCraftBrother(player) != null) && (PlayerManager.getCraftBrother(player).isSpectating())) {
+          return;
+        }
+        if (WorldChecker.game(player))
+        {
+          event.setCancelled(true);
+          player.setAllowFlight(false);
+          doubleJump(player);
+        }
+        else if (WorldChecker.mainLobby(player))
+        {
+          if ((RankManager.getPlayerRank(player.getName()).getCanDoubleJump()) && (ConfigManager.doubleJumpLobby))
+          {
+            event.setCancelled(true);
+            player.setAllowFlight(false);
+            doubleJump(player);
+          }
+          else
+          {
+            player.setAllowFlight(false);
+          }
+        }
+        else
+        {
+          event.setCancelled(true);
+        }
+      }
+    }
+  }
+  
+  public void doubleJump(final Player player)
+  {
+    player.setFlying(false);
+    player.setVelocity(player.getLocation().getDirection().multiply(0.1D).setY(0.82D));
+    BukkitRunnable br = new BukkitRunnable()
+    {
+      public void run()
+      {
+        if (!player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType().equals(Material.AIR))
+        {
+          player.setAllowFlight(true);
+          cancel();
+        }
+      }
+    };
+    br.runTaskTimer(SuperCraftBrothers.getInstance(), 0L, 1L);
+  }
+}
