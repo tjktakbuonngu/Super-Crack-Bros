@@ -1,0 +1,33 @@
+package com.gmail.samsun469.supercraftbrothers.throwable;
+
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
+
+public class TNT
+  implements EntityHitEvent
+{
+  public boolean onHitByEntity(Entity e, Item item)
+  {
+    if ((e instanceof LivingEntity))
+    {
+      double x = item.getLocation().getX();
+      double y = item.getLocation().getY();
+      double z = item.getLocation().getZ();
+      item.getLocation().getWorld().createExplosion(x, y, z, 2.0F, false, false);
+      return true;
+    }
+    return false;
+  }
+  
+  public boolean onHitByBlock(Item item)
+  {
+    double x = item.getLocation().getX();
+    double y = item.getLocation().getY();
+    double z = item.getLocation().getZ();
+    item.getLocation().getWorld().createExplosion(x, y, z, 2.0F, false, false);
+    return true;
+  }
+}
