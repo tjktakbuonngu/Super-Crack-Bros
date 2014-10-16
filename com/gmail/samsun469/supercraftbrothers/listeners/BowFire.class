@@ -1,0 +1,94 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.SCBPlayer;
+import com.gmail.samsun469.supercraftbrothers.managers.PlayerManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import java.util.HashMap;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.FireworkEffect.Builder;
+import org.bukkit.FireworkEffect.Type;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Firework;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
+import org.bukkit.entity.WitherSkull;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.util.Vector;
+
+public class BowFire
+  implements Listener
+{
+  HashMap<String, Entity> witherskeleton = new HashMap();
+  
+  @EventHandler(priority=EventPriority.HIGH)
+  public void onBowFire(EntityShootBowEvent e)
+  {
+    if ((e.getEntity() instanceof Player))
+    {
+      Player p = (Player)e.getEntity();
+      if ((WorldChecker.game(p)) && (PlayerManager.isInGame(p.getName())))
+      {
+        SCBPlayer bro = PlayerManager.getCraftBrother(p);
+        if (bro != null)
+        {
+          if (PlayerManager.getCraftBrother(p).getCurrentClass().equals("Wither"))
+          {
+            e.setCancelled(true);
+            if (e.getForce() > 0.6D)
+            {
+              WitherSkull ws = (WitherSkull)p.launchProjectile(WitherSkull.class);
+              ws.setVelocity(ws.getLocation().getDirection().normalize().multiply(0.7D));
+            }
+          }
+          if (PlayerManager.getCraftBrother(p).getCurrentClass().equals("WitherSkeleton")) {
+            if (e.getBow().getDurability() == 0)
+            {
+              this.witherskeleton.put(p.getName(), e.getProjectile());
+              e.getBow().setDurability((short)360);
+              PlayerManager.getCraftBrother(p).startBowRegen();
+            }
+            else
+            {
+              e.setCancelled(true);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  @EventHandler(priority=EventPriority.HIGH)
+  public void onPH(ProjectileHitEvent event)
+  {
+    Entity entity = event.getEntity();
+    World world = event.getEntity().getWorld();
+    double x = entity.getLocation().getX();
+    double y = entity.getLocation().getY();
+    double z = entity.getLocation().getZ();
+    if ((event.getEntity().getShooter() instanceof Player))
+    {
+      Player shooter = (Player)event.getEntity().getShooter();
+      if ((this.witherskeleton.get(shooter.getName()) != null) && (this.witherskeleton.get(shooter.getName()) == event.getEntity()))
+      {
+        Firework fw = (Firework)event.getEntity().getWorld().spawn(event.getEntity().getLocation(), Firework.class);
+        world.createExplosion(x, y, z, 7.0F, false, false);
+        FireworkMeta fm = fw.getFireworkMeta();
+        FireworkEffect effect = FireworkEffect.builder().flicker(true).trail(true).withColor(Color.GREEN).withFade(Color.LIME).with(FireworkEffect.Type.CREEPER).build();
+        fm.addEffect(effect);
+        fm.setPower(2);
+        fw.setFireworkMeta(fm);
+        this.witherskeleton.remove(shooter.getName());
+        entity.remove();
+      }
+    }
+  }
+}
