@@ -1,0 +1,59 @@
+package com.gmail.samsun469.supercraftbrothers.commands;
+
+import com.gmail.samsun469.supercraftbrothers.Lang;
+import com.gmail.samsun469.supercraftbrothers.managers.CommandManager;
+import java.util.Collection;
+import java.util.HashMap;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+public class CommandListener
+  implements CommandExecutor
+{
+  public static Collection<ICommand> commands = CommandManager.getCommands().values();
+  public static Collection<ISubCommand> subcommands = CommandManager.getSubCommands().values();
+  
+  public boolean onCommand(CommandSender cs, Command arg1, String arg2, String[] arg3)
+  {
+    for (ICommand ic : commands) {
+      if (ic.getCommand().equalsIgnoreCase(arg2))
+      {
+        if (ic.getCommand().equalsIgnoreCase("scb"))
+        {
+          ic.onCommand(cs, arg3);
+          return true;
+        }
+        if (ic.playerOnly())
+        {
+          if (!(cs instanceof Player)) {
+            cs.sendMessage(Lang.COMMAND_PLAYER_ONLY.getString(true));
+          } else if (cs.hasPermission(ic.getPerm()))
+          {
+            if (arg3.length == ic.getArgs()) {
+              ic.onCommand(cs, arg3);
+            } else {
+              cs.sendMessage(Lang.COMMAND_NOT_ENOUGH_ARGS.getString(true));
+            }
+          }
+          else {
+            cs.sendMessage(Lang.COMMAND_NO_PERMISSION.getString(true));
+          }
+        }
+        else if (cs.hasPermission(ic.getPerm()))
+        {
+          if (arg3.length == ic.getArgs()) {
+            ic.onCommand(cs, arg3);
+          } else {
+            cs.sendMessage(Lang.COMMAND_NOT_ENOUGH_ARGS.getString(true));
+          }
+        }
+        else {
+          cs.sendMessage(Lang.COMMAND_NO_PERMISSION.getString(true));
+        }
+      }
+    }
+    return true;
+  }
+}
