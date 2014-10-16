@@ -1,0 +1,36 @@
+package com.gmail.samsun469.supercraftbrothers.listeners;
+
+import com.gmail.samsun469.supercraftbrothers.managers.ArenaManager;
+import com.gmail.samsun469.supercraftbrothers.utilities.WorldChecker;
+import java.util.logging.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+
+public class DPlayerCommand
+  implements Listener
+{
+  @EventHandler(priority=EventPriority.HIGH)
+  public void PlayerCommandPreprocessListener(PlayerCommandPreprocessEvent event)
+  {
+    if (ArenaManager.getMainLobby() == null)
+    {
+      Bukkit.getLogger().severe("[SCB] No Main Lobby Set!");
+      return;
+    }
+    Player player = event.getPlayer();
+    if (WorldChecker.lobbyGame(player))
+    {
+      String p = "scb.bypass.commandblocker";
+      String nc = event.getMessage().replace("/", ".").replace(" ", ".");
+      if ((player.hasPermission(p)) || (player.hasPermission(p + nc))) {
+        return;
+      }
+      event.getPlayer().sendMessage("[§aSCB§r] Commands are disabled in-arena");
+      event.setCancelled(true);
+    }
+  }
+}
